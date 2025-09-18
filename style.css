@@ -290,6 +290,7 @@ main {
   color: var(--bg-1);
   background: linear-gradient(135deg, var(--cyan), var(--magenta));
   box-shadow: 0 0 25px rgba(0, 230, 255, 0.35);
+  border: none;
 }
 
 .btn--primary:hover,
@@ -561,15 +562,22 @@ main {
 }
 
 @media (max-width: 1024px) {
+  main {
+    padding-top: 0;
+  }
   .hero {
     grid-template-columns: minmax(0, 1fr);
     text-align: center;
+    padding-top: 2rem;
   }
   .hero__content {
     order: 2;
   }
   .hero__visual {
-    order: 1;
+    display: none;
+  }
+  .hero__title {
+    line-height: 1.25;
   }
   .hero__actions {
     justify-content: center;
@@ -645,13 +653,10 @@ main {
     padding-top: 0;
   }
   main {
-    padding: 3.5rem 1rem 4rem;
+    /* padding: 3.5rem 1rem 4rem; */
   }
   .hero {
-    padding-top: 2.5rem;
-  }
-  .hero__visual {
-    max-width: 320px;
+    /* padding-top: 2.5rem; */
   }
   .hero__globe-wire,
   .hero__particles circle {
