@@ -45,18 +45,18 @@ function validateForm() {
   let isValid = true;
   updateStatus('', '');
 
-  const companyField = form.elements.namedItem('company');
-  const contactField = form.elements.namedItem('contactPerson');
+  const nameField = form.elements.namedItem('name');
   const emailField = form.elements.namedItem('email');
+  const companyField = form.elements.namedItem('company');
   const consentField = form.elements.namedItem('consent');
   const honeyField = form.elements.namedItem('_honey');
 
   if (honeyField && 'value' in honeyField && honeyField.value.trim()) {
-    updateStatus('error', 'Похоже, запрос заблокирован. Попробуйте ещё раз.');
+    updateStatus('error', 'Spam detected, please resubmit the form.');
     return false;
   }
 
-  const requiredFields = [companyField, contactField, emailField, consentField];
+  const requiredFields = [nameField, emailField, companyField, consentField];
   requiredFields.forEach((field) => {
     if (!field) return;
     const value = 'value' in field ? field.value.trim() : field.checked;
@@ -74,12 +74,12 @@ function validateForm() {
     if (!isEmailValid) {
       isValid = false;
       setFieldValidity(emailField, false);
-      updateStatus('error', 'Введите корректный email.');
+      updateStatus('error', 'Please enter a valid email.');
     }
   }
 
   if (!isValid && !formStatus.textContent) {
-    updateStatus('error', 'Заполните обязательные поля, чтобы отправить форму.');
+    updateStatus('error', 'Please fill in all required fields before submitting.');
   }
 
   return isValid;
@@ -87,19 +87,18 @@ function validateForm() {
 
 function formatMailBody(data) {
   const lines = [
-    `Название компании: ${data.company || '—'}`,
-    `Веб-сайт: ${data.website || '—'}`,
-    `Отрасль: ${data.industry || '—'}`,
-    `Контактное лицо: ${data.contactPerson || '—'}`,
-    `Email: ${data.email || '—'}`,
-    `Комментарий: ${data.comment || '—'}`,
-    `Согласие на обработку: ${data.consent ? 'Да' : 'Нет'}`
+    `Name: ${data.name || '-'}`,
+    `Email: ${data.email || '-'}`,
+    `Company: ${data.company || '-'}`,
+    `Message: ${data.message || '-'}`,
+    `Consent given: ${data.consent ? 'Yes' : 'No'}`,
+    `Source: ${data.source || '-'}`
   ];
   return lines.join('\n');
 }
 
 function buildMailtoUrl(data) {
-  const subject = encodeURIComponent(`Запрос на маркетинговые исследования — ${data.company || 'не указано'}`);
+  const subject = encodeURIComponent(`Marketing research request - ${data.company || 'No company provided'}`);
   const body = encodeURIComponent(formatMailBody(data));
   return `mailto:hello@neonlab.team?subject=${subject}&body=${body}`;
 }
@@ -113,12 +112,10 @@ async function submitForm(event) {
   }
 
   const payload = {
-    company: getFieldValue('company'),
-    website: getFieldValue('website'),
-    industry: getFieldValue('industry'),
-    contactPerson: getFieldValue('contactPerson'),
+    name: getFieldValue('name'),
     email: getFieldValue('email'),
-    comment: getFieldValue('comment'),
+    company: getFieldValue('company'),
+    message: getFieldValue('message'),
     consent: form.elements.namedItem('consent') instanceof HTMLInputElement ? form.elements.namedItem('consent').checked : false,
     source: 'Neon Insight Lab landing'
   };
@@ -142,12 +139,12 @@ async function submitForm(event) {
       throw new Error(`Formspree responded with ${response.status}`);
     }
 
-    updateStatus('success', 'Спасибо! Мы получили ваш запрос и ответим в течение рабочего дня.');
+    updateStatus('success', 'Thank you! We will get in touch with you soon.');
     form.reset();
   } catch (error) {
     const mailtoUrl = buildMailtoUrl(payload);
     window.location.href = mailtoUrl;
-    updateStatus('error', 'Онлайн-отправка не удалась. Мы открыли письмо — проверьте его и отправьте вручную.');
+    updateStatus('error', 'Something went wrong. Please send an email if the problem repeats.');
     console.warn('Form submission failed, used mailto fallback.', error);
   } finally {
     toggleLoading(false);
@@ -157,17 +154,16 @@ async function submitForm(event) {
 function handleMailtoClick() {
   if (!form) return;
   const payload = {
-    company: getFieldValue('company'),
-    website: getFieldValue('website'),
-    industry: getFieldValue('industry'),
-    contactPerson: getFieldValue('contactPerson'),
+    name: getFieldValue('name'),
     email: getFieldValue('email'),
-    comment: getFieldValue('comment'),
-    consent: form.elements.namedItem('consent') instanceof HTMLInputElement ? form.elements.namedItem('consent').checked : false
+    company: getFieldValue('company'),
+    message: getFieldValue('message'),
+    consent: form.elements.namedItem('consent') instanceof HTMLInputElement ? form.elements.namedItem('consent').checked : false,
+    source: 'Neon Insight Lab landing'
   };
   const mailtoUrl = buildMailtoUrl(payload);
   window.location.href = mailtoUrl;
-  updateStatus('success', 'Подготовили письмо — проверьте и отправьте его, чтобы связаться с нами.');
+  updateStatus('success', 'Email draft created. Please send it when you are ready.');
 }
 
 function bindFieldListeners() {
@@ -330,7 +326,7 @@ async function initOptionalGlobe() {
       isMobile.addListener(handleMobileChange);
     }
   } catch (error) {
-    console.warn('Не удалось инициализировать дополнительную анимацию.', error);
+    console.warn('Optional globe initialization failed.', error);
   }
 }
 
