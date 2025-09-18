@@ -1,349 +1,231 @@
 ﻿<!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      Маркетинг — развиваться, видеть тренды | Аналитика и исследования
-    </title>
-    <meta
-      name="description"
-      content="Аналитическая команда, которая исследует рынок, отслеживает тренды и помогает компаниям принимать обоснованные маркетинговые решения."
-    />
-    <meta
-      property="og:title"
-      content="Маркетинг — развиваться, видеть тренды"
-    />
-    <meta
-      property="og:description"
-      content="Независимая команда аналитиков: исследования рынка, мониторинг трендов, стратегические рекомендации."
-    />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://trendinsightlab.com" />
-    <meta
-      property="og:image"
-      content="https://trendinsightlab.com/og-image.jpg"
-    />
-    <link rel="stylesheet" href="style.css" />
-    <script src="form.js" defer></script>
-  </head>
-  <body class="page">
-    <header class="page__header header">
-      <div class="header__container">
-        <div class="header__brand" aria-label="Исследовательская команда">
-          <span class="header__logo-text">Trend Insight Lab</span>
-          <span class="header__tagline"
-            >Маркетинговые исследования и аналитика</span
-          >
-        </div>
-        <nav class="header__nav" aria-label="Основная навигация">
-          <a class="header__link" href="#about">О нас</a>
-          <a class="header__link" href="#services">Услуги</a>
-          <a class="header__link" href="#methodology">Методология</a>
-          <a class="header__link" href="#contact">Контакты</a>
-        </nav>
-      </div>
-    </header>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Маркетинговые исследования и мониторинг трендов | Neon Insight Lab</title>
+  <meta name="description" content="Neon Insight Lab — маркетинговые исследования, мониторинг трендов и аналитика каналов для роста российских брендов.">
+  <meta property="og:title" content="Маркетинговые исследования и мониторинг трендов">
+  <meta property="og:description" content="Маркетинговые исследования, мониторинг трендов, аналитика каналов и исследования аудитории от независимой команды.">
+  <meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=Neon+Insight+Lab">
+  <meta name="keywords" content="маркетинговые исследования, мониторинг трендов, аналитика каналов, исследования аудитории">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header" id="top">
+    <div class="site-header__inner">
+      <a class="logo" href="#top" aria-label="Главная страница Neon Insight Lab">NeonLab</a>
+      <button class="nav-toggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="primaryNav">
+        <span class="nav-toggle__bar" aria-hidden="true"></span>
+        <span class="nav-toggle__bar" aria-hidden="true"></span>
+        <span class="nav-toggle__bar" aria-hidden="true"></span>
+      </button>
+      <nav class="main-nav" aria-label="Основная навигация">
+        <ul id="primaryNav" class="main-nav__list">
+          <li><a href="#services">Услуги</a></li>
+          <li><a href="#method">Метод</a></li>
+          <li><a href="#cases">Кейсы</a></li>
+          <li><a href="#contact">Связаться</a></li>
+        </ul>
+      </nav>
+      <a class="header-mail" href="mailto:hello@neonlab.team">hello@neonlab.team</a>
+    </div>
+  </header>
 
-    <main class="page__main main">
-      <section class="main__hero hero" id="hero">
-        <div class="hero__container">
-          <p class="hero__kicker">
-            Независимая аналитика маркетинговых трендов
-          </p>
-          <h1 class="hero__title">Маркетинг — развиваться, видеть тренды</h1>
-          <p class="hero__subtitle">
-            Мы сопровождаем команды маркетинга в исследовании рынка, собираем
-            сигналы и разрабатываем аналитические выводы, чтобы вы принимали
-            решения на основе данных, а не догадок.
-          </p>
-          <div class="hero__actions">
-            <a class="hero__cta button" href="#contact">Написать нам</a>
-            <a class="hero__alt-link" href="mailto:hello@trendinsightlab.com"
-              >hello@trendinsightlab.com</a
-            >
-          </div>
+  <main>
+    <section class="hero" id="hero">
+      <div class="hero__content">
+        <p class="hero__eyebrow">Мониторинг трендов без шума</p>
+        <h1 class="hero__title">Глубокие маркетинговые исследования для решений сегодня</h1>
+        <p class="hero__subtitle">Мы соединяем сигналы рынка, поведение аудитории и аналитику каналов, чтобы вы быстрее находили точки роста.</p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#contact">Написать нам</a>
+          <a class="btn btn--secondary" href="#services">Узнать подробнее</a>
         </div>
-      </section>
-
-      <section class="main__about about" id="about">
-        <div class="about__container">
-          <h2 class="about__title">О нас</h2>
-          <div class="about__content">
-            <p class="about__paragraph">
-              Мы — исследовательская команда маркетинговых аналитиков,
-              объединяющая экспертов по данным, стратегов и специалистов по
-              отраслевым трендам. Наша задача — помогать компаниям понимать
-              сигналы рынка и вовремя реагировать на изменения.
-            </p>
-            <p class="about__paragraph">
-              Работая как независимая лаборатория, мы создаем прозрачные модели
-              мониторинга и предоставляем глубинную аналитику. Для нас важны
-              обоснованные выводы, проверенные источники и открытый диалог с
-              заказчиком.
-            </p>
-            <p class="about__paragraph">
-              Мы комбинируем количественные и качественные методы исследования,
-              уделяем внимание контексту и предлагаем рекомендации, которые
-              адаптируются под ваш бизнес.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section class="main__services services" id="services">
-        <div class="services__container">
-          <h2 class="services__title">Что мы делаем</h2>
-          <div class="services__grid">
-            <article class="services__card service-card">
-              <h3 class="service-card__title">Рыночные исследования</h3>
-              <p class="service-card__text">
-                Системный сбор данных о потребителях и конкурентной среде.
-              </p>
-            </article>
-            <article class="services__card service-card">
-              <h3 class="service-card__title">Мониторинг трендов</h3>
-              <p class="service-card__text">
-                Отслеживание поведенческих и технологических сдвигов в отрасли.
-              </p>
-            </article>
-            <article class="services__card service-card">
-              <h3 class="service-card__title">Аналитика кампаний</h3>
-              <p class="service-card__text">
-                Оценка эффективности коммуникаций и рекомендаций по
-                корректировкам.
-              </p>
-            </article>
-            <article class="services__card service-card">
-              <h3 class="service-card__title">Стратегические инсайты</h3>
-              <p class="service-card__text">
-                Гипотезы и сценарии развития, основанные на данных.
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="main__methodology methodology" id="methodology">
-        <div class="methodology__container">
-          <h2 class="methodology__title">Как мы работаем</h2>
-          <ol class="methodology__steps">
-            <li class="methodology__step methodology__step--collect">
-              <h3 class="methodology__step-title">Сбор данных</h3>
-              <p class="methodology__step-text">
-                Определяем источники, настраиваем мониторинг и собираем
-                многоканальные данные.
-              </p>
-            </li>
-            <li class="methodology__step methodology__step--analyze">
-              <h3 class="methodology__step-title">Анализ</h3>
-              <p class="methodology__step-text">
-                Применяем статистику, сегментацию и качественную интерпретацию.
-              </p>
-            </li>
-            <li class="methodology__step methodology__step--insights">
-              <h3 class="methodology__step-title">Выводы</h3>
-              <p class="methodology__step-text">
-                Формулируем ключевые инсайты и сценарии.
-              </p>
-            </li>
-            <li class="methodology__step methodology__step--recommend">
-              <h3 class="methodology__step-title">Рекомендации</h3>
-              <p class="methodology__step-text">
-                Преобразуем результаты в дорожную карту действий и метрики
-                отслеживания.
-              </p>
-            </li>
-          </ol>
-        </div>
-      </section>
-
-      <section class="main__evidence evidence" id="evidence">
-        <div class="evidence__container">
-          <h2 class="evidence__title">Факты и кейсы</h2>
-          <div class="evidence__grid">
-            <article class="evidence__item evidence-card">
-              <h3 class="evidence-card__title">
-                Мониторинг продуктовых трендов
-              </h3>
-              <p class="evidence-card__text">
-                В течение 8 недель сформировали карту трендов для B2B-сервиса,
-                позволившую команде быстрее выводить обновления.
-              </p>
-            </article>
-            <article class="evidence__item evidence-card">
-              <h3 class="evidence-card__title">Аналитика спроса</h3>
-              <p class="evidence-card__text">
-                Проанализировали 1200 отзывов и выявили ключевые аргументы,
-                которые усилили позиционирование бренда.
-              </p>
-            </article>
-            <article class="evidence__item evidence-card">
-              <h3 class="evidence-card__title">Исследование каналов</h3>
-              <p class="evidence-card__text">
-                Построили модель атрибуции для мультиканальной кампании,
-                зафиксировав рост точности измерения на 18%.
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="main__seo seo" id="seo" aria-label="SEO данные">
-        <div class="seo__container">
-          <h2 class="seo__title">SEO данные</h2>
-          <div class="seo__content">
-            <div class="seo__column">
-              <h3 class="seo__subtitle">Ключевые фразы</h3>
-              <ul class="seo__list">
-                <li class="seo__item">исследования рынка и трендов</li>
-                <li class="seo__item">аналитика маркетинговых данных</li>
-                <li class="seo__item">мониторинг маркетинговых сигналов</li>
-                <li class="seo__item">стратегические маркетинговые инсайты</li>
-                <li class="seo__item">оценка эффективности маркетинга</li>
-              </ul>
-            </div>
-            <div class="seo__column">
-              <h3 class="seo__subtitle">Метаданные</h3>
-              <ul class="seo__list">
-                <li class="seo__item">
-                  canonical: https://trendinsightlab.com
-                </li>
-                <li class="seo__item">lang: ru-RU</li>
-                <li class="seo__item">author: Trend Insight Lab</li>
-                <li class="seo__item">robots: index,follow</li>
-                <li class="seo__item">theme-color: #0f1c2b</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="main__contact contact" id="contact">
-        <div class="contact__container">
-          <h2 class="contact__title">Свяжитесь с нами</h2>
-          <p class="contact__intro">
-            Отправьте запрос на исследование, и мы согласуем задачу, источники и
-            формат аналитики.
-          </p>
-          <form
-            class="contact__form form"
-            id="consultation-form"
-            aria-label="Форма запроса консультации"
-            method="POST"
-            data-netlify="true"
-            data-netlify-honeypot="bot-field"
-            data-formspree="true"
-            data-formspree-endpoint="https://formspree.io/f/yourformid"
-            novalidate
-          >
-            <input type="hidden" name="form-name" value="consultation-form" />
-            <p class="form__hidden">
-              <label class="form__label" for="bot-field"
-                >Не заполняйте это поле</label
-              >
-              <input
-                class="form__input"
-                name="bot-field"
-                id="bot-field"
-                type="text"
-              />
-            </p>
-            <div class="form__group form__group--two-columns">
-              <label class="form__field">
-                <span class="form__label">Название компании *</span>
-                <input
-                  class="form__input"
-                  type="text"
-                  name="company"
-                  required
-                />
-              </label>
-              <label class="form__field">
-                <span class="form__label">Веб-сайт *</span>
-                <input class="form__input" type="url" name="website" required />
-              </label>
-            </div>
-            <div class="form__group form__group--two-columns">
-              <label class="form__field">
-                <span class="form__label">Отрасль *</span>
-                <input
-                  class="form__input"
-                  type="text"
-                  name="industry"
-                  required
-                />
-              </label>
-              <label class="form__field">
-                <span class="form__label">Контактное лицо *</span>
-                <input
-                  class="form__input"
-                  type="text"
-                  name="contact_person"
-                  required
-                />
-              </label>
-            </div>
-            <div class="form__group form__group--two-columns">
-              <label class="form__field">
-                <span class="form__label">Email *</span>
-                <input class="form__input" type="email" name="email" required />
-              </label>
-              <label class="form__field">
-                <span class="form__label">Комментарий</span>
-                <textarea
-                  class="form__input form__input--textarea"
-                  name="message"
-                  rows="4"
-                  placeholder="Кратко опишите запрос"
-                ></textarea>
-              </label>
-            </div>
-            <label class="form__checkbox">
-              <input
-                class="form__checkbox-input"
-                type="checkbox"
-                name="consent"
-                required
-              />
-              <span class="form__checkbox-label"
-                >Согласен(на) на обработку персональных данных *</span
-              >
-            </label>
-            <div class="form__actions">
-              <button class="form__submit button" type="submit">
-                Отправить
-              </button>
-              <p class="form__note">
-                При невозможности отправки формы письмо откроется через почтовый
-                клиент.
-              </p>
-            </div>
-          </form>
-        </div>
-      </section>
-    </main>
-
-    <footer class="page__footer footer">
-      <div class="footer__container">
-        <div class="footer__contacts">
-          <span class="footer__label">Почта:</span>
-          <a class="footer__link" href="mailto:hello@trendinsightlab.com"
-            >hello@trendinsightlab.com</a
-          >
-        </div>
-        <p class="footer__policy">
-          Мы — независимая исследовательская команда. Отправляя форму, вы
-          соглашаетесь на обработку данных в соответствии с внутренней политикой
-          конфиденциальности.
-        </p>
-        <div class="footer__links">
-          <a class="footer__link" href="#">Правовые документы</a>
-          <a class="footer__link" href="#">Политика конфиденциальности</a>
-          <a class="footer__link" href="#">Условия сотрудничества</a>
+        <div class="hero__meta">
+          <span>маркетинговые исследования</span>
+          <span>мониторинг трендов</span>
+          <span>исследования аудитории</span>
         </div>
       </div>
-    </footer>
-  </body>
+      <div class="hero__visual" role="presentation" aria-hidden="true">
+        <svg class="hero__globe" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="glowGradient" fx="35%" fy="35%">
+              <stop offset="0%" stop-color="#00e6ff" stop-opacity="0.9" />
+              <stop offset="45%" stop-color="#b64cff" stop-opacity="0.55" />
+              <stop offset="100%" stop-color="#0f1330" stop-opacity="0" />
+            </radialGradient>
+            <linearGradient id="wireGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00e6ff" />
+              <stop offset="100%" stop-color="#b64cff" />
+            </linearGradient>
+            <filter id="softGlow">
+              <feGaussianBlur stdDeviation="6" result="blur" />
+              <feBlend in="SourceGraphic" in2="blur" mode="screen" />
+            </filter>
+          </defs>
+          <circle class="hero__globe-gradient" cx="200" cy="200" r="180" fill="url(#glowGradient)" />
+          <g class="hero__globe-wire" stroke="url(#wireGradient)" stroke-width="1.5" fill="none" filter="url(#softGlow)">
+            <ellipse cx="200" cy="200" rx="160" ry="60" />
+            <ellipse cx="200" cy="200" rx="120" ry="40" transform="rotate(30 200 200)" />
+            <ellipse cx="200" cy="200" rx="120" ry="40" transform="rotate(-30 200 200)" />
+            <ellipse cx="200" cy="200" rx="90" ry="30" transform="rotate(60 200 200)" />
+            <ellipse cx="200" cy="200" rx="90" ry="30" transform="rotate(-60 200 200)" />
+          </g>
+          <g class="hero__particles" fill="#00e6ff">
+            <circle cx="90" cy="120" r="3" />
+            <circle cx="300" cy="80" r="2.5" />
+            <circle cx="320" cy="240" r="3.5" />
+            <circle cx="120" cy="280" r="2.5" />
+            <circle cx="200" cy="330" r="2" />
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <section class="services" id="services">
+      <div class="section-heading">
+        <h2>Что мы исследуем</h2>
+        <p>Подсветим критические тренды и сигналы рынка, чтобы продукт и коммуникации опережали ожидания аудитории.</p>
+      </div>
+      <div class="services__grid">
+        <article class="service-card">
+          <div class="service-card__icon" aria-hidden="true">📡</div>
+          <h3>Pulse Radar</h3>
+          <p>Еженедельный мониторинг трендов, инфоповодов и тем роста.</p>
+        </article>
+        <article class="service-card">
+          <div class="service-card__icon" aria-hidden="true">🧭</div>
+          <h3>Insight Journey</h3>
+          <p>Глубокие интервью и данные поведения для выявления мотиваций.</p>
+        </article>
+        <article class="service-card">
+          <div class="service-card__icon" aria-hidden="true">📊</div>
+          <h3>Channel Scan</h3>
+          <p>Бенчмаркинг каналов и сценариев конверсии по рынку.</p>
+        </article>
+        <article class="service-card">
+          <div class="service-card__icon" aria-hidden="true">🧠</div>
+          <h3>Decision Deck</h3>
+          <p>Сводные рекомендации для продуктовых и маркетинговых решений.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="method" id="method">
+      <div class="section-heading">
+        <h2>Методологический цикл</h2>
+        <p>Четыре шага, которые повторяем для каждой команды.</p>
+      </div>
+      <div class="method__grid">
+        <article class="method-step">
+          <div class="method-step__icon" aria-hidden="true">🔍</div>
+          <h3>Сбор</h3>
+          <p>Объединяем открытые источники, цифровые следы и полевые данные.</p>
+        </article>
+        <article class="method-step">
+          <div class="method-step__icon" aria-hidden="true">🧮</div>
+          <h3>Анализ</h3>
+          <p>Строим модели, фильтруем шум, выделяем устойчивые сигналы.</p>
+        </article>
+        <article class="method-step">
+          <div class="method-step__icon" aria-hidden="true">💡</div>
+          <h3>Инсайты</h3>
+          <p>Формируем сценарии поведения и реакций целевых аудиторий.</p>
+        </article>
+        <article class="method-step">
+          <div class="method-step__icon" aria-hidden="true">🚀</div>
+          <h3>Рекомендации</h3>
+          <p>Готовим дорожные карты действий и приоритеты изменений.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="cases" id="cases">
+      <div class="section-heading">
+        <h2>Сигналы эффективности</h2>
+      </div>
+      <div class="cases__grid">
+        <article class="case-card">
+          <p>Переупаковали продукт после 12 глубинных интервью — конверсия в демо выросла на 27%.</p>
+        </article>
+        <article class="case-card">
+          <p>Выявили новый канал привлечения в TikTok, который запустили за три недели.</p>
+        </article>
+        <article class="case-card">
+          <p>Собрали единую панель метрик, чтобы быстрее видеть отклонения по сегментам.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="contact__content">
+        <div class="section-heading">
+          <h2>Обсудим ваши задачи</h2>
+          <p>Заполните форму — вернёмся с первым ответом в течение рабочего дня.</p>
+        </div>
+        <form id="contactForm" class="contact-form" method="POST" action="https://formspree.io/f/YOUR_ID" data-netlify="true" netlify-honeypot="_honey" data-netlify-honeypot="_honey" name="insight-contact" novalidate>
+          <input type="hidden" name="form-name" value="insight-contact">
+          <div class="contact-form__group" aria-hidden="true">
+            <label for="_honey">Оставьте пустым</label>
+            <input id="_honey" name="_honey" type="text" tabindex="-1" autocomplete="off">
+          </div>
+          <div class="contact-form__row">
+            <label for="company">Название компании*</label>
+            <input id="company" name="company" type="text" placeholder="ООО \"Сигнал\"" required aria-required="true" autocomplete="organization">
+          </div>
+          <div class="contact-form__row">
+            <label for="website">Веб-сайт</label>
+            <input id="website" name="website" type="url" placeholder="https://" autocomplete="url">
+          </div>
+          <div class="contact-form__row">
+            <label for="industry">Отрасль</label>
+            <input id="industry" name="industry" type="text" placeholder="FinTech / Retail / EdTech" autocomplete="organization-title">
+          </div>
+          <div class="contact-form__row">
+            <label for="contactPerson">Контактное лицо*</label>
+            <input id="contactPerson" name="contactPerson" type="text" placeholder="Имя, роль" required aria-required="true" autocomplete="name">
+          </div>
+          <div class="contact-form__row">
+            <label for="email">Email*</label>
+            <input id="email" name="email" type="email" placeholder="you@company.com" required aria-required="true" autocomplete="email">
+          </div>
+          <div class="contact-form__row contact-form__row--full">
+            <label for="comment">Комментарий</label>
+            <textarea id="comment" name="comment" rows="4" placeholder="Опишите запрос или гипотезу"></textarea>
+          </div>
+          <div class="contact-form__consent">
+            <input id="consent" name="consent" type="checkbox" required aria-required="true">
+            <label for="consent">Согласен(на) на обработку данных для связи</label>
+          </div>
+          <div class="contact-form__actions">
+            <button type="submit" class="btn btn--primary" data-role="submit">
+              <span class="btn__label">Отправить</span>
+              <span class="btn__spinner" aria-hidden="true"></span>
+            </button>
+            <button type="button" class="btn btn--secondary" data-role="mailto">Отправить по почте</button>
+          </div>
+          <p id="formStatus" class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p>Мы — независимая исследовательская команда.</p>
+      <a href="mailto:hello@neonlab.team">hello@neonlab.team</a>
+      <nav aria-label="Правовые документы">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="form.js" type="module"></script>
+</body>
 </html>

@@ -1,111 +1,347 @@
-п»ї(function () {
-    const form = document.getElementById("consultation-form");
-    if (!form) {
-        return;
+const form = document.querySelector('#contactForm');
+const formStatus = document.querySelector('#formStatus');
+const submitButton = form?.querySelector('[data-role="submit"]');
+const mailtoButton = form?.querySelector('[data-role="mailto"]');
+const navToggle = document.querySelector('.nav-toggle');
+const mainNav = document.querySelector('.main-nav');
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+
+function updateStatus(type, message) {
+  if (!formStatus) return;
+  formStatus.classList.remove('form-status--success', 'form-status--error');
+  if (type) {
+    formStatus.classList.add(type === 'success' ? 'form-status--success' : 'form-status--error');
+  }
+  formStatus.textContent = message;
+}
+
+function toggleLoading(isLoading) {
+  if (!submitButton || !mailtoButton) return;
+  submitButton.disabled = isLoading;
+  mailtoButton.disabled = isLoading;
+  submitButton.classList.toggle('btn--loading', isLoading);
+}
+
+function getFieldValue(name) {
+  const field = form?.elements.namedItem(name);
+  if (field && 'value' in field) {
+    return field.value.trim();
+  }
+  return '';
+}
+
+function setFieldValidity(field, isValid) {
+  if (!field) return;
+  if (isValid) {
+    field.removeAttribute('aria-invalid');
+  } else {
+    field.setAttribute('aria-invalid', 'true');
+  }
+}
+
+function validateForm() {
+  if (!form) return false;
+  let isValid = true;
+  updateStatus('', '');
+
+  const companyField = form.elements.namedItem('company');
+  const contactField = form.elements.namedItem('contactPerson');
+  const emailField = form.elements.namedItem('email');
+  const consentField = form.elements.namedItem('consent');
+  const honeyField = form.elements.namedItem('_honey');
+
+  if (honeyField && 'value' in honeyField && honeyField.value.trim()) {
+    updateStatus('error', 'Похоже, запрос заблокирован. Попробуйте ещё раз.');
+    return false;
+  }
+
+  const requiredFields = [companyField, contactField, emailField, consentField];
+  requiredFields.forEach((field) => {
+    if (!field) return;
+    const value = 'value' in field ? field.value.trim() : field.checked;
+    const valid = field instanceof HTMLInputElement && field.type === 'checkbox' ? field.checked : Boolean(value);
+    if (!valid) {
+      isValid = false;
+      setFieldValidity(field, false);
+    } else {
+      setFieldValidity(field, true);
     }
+  });
 
-    const config = {
-        enableFormspree: form.dataset.formspree === "true",
-        formspreeEndpoint: form.dataset.formspreeEndpoint || "",
-        fallbackEmail: "hello@trendinsightlab.com"
-    };
+  if (emailField && 'value' in emailField) {
+    const isEmailValid = emailPattern.test(emailField.value.trim());
+    if (!isEmailValid) {
+      isValid = false;
+      setFieldValidity(emailField, false);
+      updateStatus('error', 'Введите корректный email.');
+    }
+  }
 
-    const status = document.createElement("p");
-    status.className = "form__status";
-    status.setAttribute("role", "status");
-    status.setAttribute("aria-live", "polite");
-    form.appendChild(status);
+  if (!isValid && !formStatus.textContent) {
+    updateStatus('error', 'Заполните обязательные поля, чтобы отправить форму.');
+  }
 
-    form.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        resetStatus();
+  return isValid;
+}
 
-        const formData = new FormData(form);
-        const validation = validateForm(formData);
+function formatMailBody(data) {
+  const lines = [
+    `Название компании: ${data.company || '—'}`,
+    `Веб-сайт: ${data.website || '—'}`,
+    `Отрасль: ${data.industry || '—'}`,
+    `Контактное лицо: ${data.contactPerson || '—'}`,
+    `Email: ${data.email || '—'}`,
+    `Комментарий: ${data.comment || '—'}`,
+    `Согласие на обработку: ${data.consent ? 'Да' : 'Нет'}`
+  ];
+  return lines.join('\n');
+}
 
-        if (!validation.valid) {
-            showStatus(validation.message, "error");
-            return;
-        }
+function buildMailtoUrl(data) {
+  const subject = encodeURIComponent(`Запрос на маркетинговые исследования — ${data.company || 'не указано'}`);
+  const body = encodeURIComponent(formatMailBody(data));
+  return `mailto:hello@neonlab.team?subject=${subject}&body=${body}`;
+}
 
-        if (config.enableFormspree && config.formspreeEndpoint) {
-            try {
-                const response = await sendToFormspree(formData);
-                if (response.ok) {
-                    form.reset();
-                    showStatus("РЎРїР°СЃРёР±Рѕ! Р—Р°РїСЂРѕСЃ РѕС‚РїСЂР°РІР»РµРЅ Рё РјС‹ СЃРєРѕСЂРѕ СЃРІСЏР¶РµРјСЃСЏ СЃ РІР°РјРё.", "success");
-                    return;
-                }
-            } catch (error) {
-                console.warn("Formspree request failed, fallback to mailto.", error);
-            }
-        }
+async function submitForm(event) {
+  event.preventDefault();
+  if (!form || !submitButton) return;
 
-        openMailFallback(formData);
+  if (!validateForm()) {
+    return;
+  }
+
+  const payload = {
+    company: getFieldValue('company'),
+    website: getFieldValue('website'),
+    industry: getFieldValue('industry'),
+    contactPerson: getFieldValue('contactPerson'),
+    email: getFieldValue('email'),
+    comment: getFieldValue('comment'),
+    consent: form.elements.namedItem('consent') instanceof HTMLInputElement ? form.elements.namedItem('consent').checked : false,
+    source: 'Neon Insight Lab landing'
+  };
+
+  toggleLoading(true);
+  updateStatus('', '');
+
+  const endpoint = form.getAttribute('action') || 'https://formspree.io/f/YOUR_ID';
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
     });
 
-    function validateForm(formData) {
-        const requiredFields = ["company", "website", "industry", "contact_person", "email", "consent"];
-        for (const field of requiredFields) {
-            if (!formData.get(field)) {
-                return { valid: false, message: "РџРѕР¶Р°Р»СѓР№СЃС‚Р°, Р·Р°РїРѕР»РЅРёС‚Рµ РІСЃРµ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рµ РїРѕР»СЏ." };
-            }
+    if (!response.ok) {
+      throw new Error(`Formspree responded with ${response.status}`);
+    }
+
+    updateStatus('success', 'Спасибо! Мы получили ваш запрос и ответим в течение рабочего дня.');
+    form.reset();
+  } catch (error) {
+    const mailtoUrl = buildMailtoUrl(payload);
+    window.location.href = mailtoUrl;
+    updateStatus('error', 'Онлайн-отправка не удалась. Мы открыли письмо — проверьте его и отправьте вручную.');
+    console.warn('Form submission failed, used mailto fallback.', error);
+  } finally {
+    toggleLoading(false);
+  }
+}
+
+function handleMailtoClick() {
+  if (!form) return;
+  const payload = {
+    company: getFieldValue('company'),
+    website: getFieldValue('website'),
+    industry: getFieldValue('industry'),
+    contactPerson: getFieldValue('contactPerson'),
+    email: getFieldValue('email'),
+    comment: getFieldValue('comment'),
+    consent: form.elements.namedItem('consent') instanceof HTMLInputElement ? form.elements.namedItem('consent').checked : false
+  };
+  const mailtoUrl = buildMailtoUrl(payload);
+  window.location.href = mailtoUrl;
+  updateStatus('success', 'Подготовили письмо — проверьте и отправьте его, чтобы связаться с нами.');
+}
+
+function bindFieldListeners() {
+  if (!form) return;
+  form.addEventListener('input', (event) => {
+    const target = event.target;
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+      if (target.hasAttribute('aria-invalid') && target.value.trim()) {
+        setFieldValidity(target, true);
+        if (formStatus?.classList.contains('form-status--error')) {
+          updateStatus('', '');
         }
+      }
+    }
+  });
+}
 
-        const email = formData.get("email");
-        if (!validateEmail(email)) {
-            return { valid: false, message: "РџСЂРѕРІРµСЂСЊС‚Рµ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ email Р°РґСЂРµСЃР°." };
-        }
+function initNavigation() {
+  if (!navToggle || !mainNav) return;
+  navToggle.addEventListener('click', () => {
+    const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+    navToggle.setAttribute('aria-expanded', (!expanded).toString());
+    mainNav.classList.toggle('is-open', !expanded);
+  });
 
-        return { valid: true };
+  mainNav.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        navToggle.setAttribute('aria-expanded', 'false');
+        mainNav.classList.remove('is-open');
+      }
+    });
+  });
+}
+
+async function initOptionalGlobe() {
+  const visual = document.querySelector('.hero__visual');
+  if (!visual) return;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const isMobile = window.matchMedia('(max-width: 600px)');
+
+  if (prefersReducedMotion.matches || isMobile.matches) {
+    return;
+  }
+
+  try {
+    const THREE = await import('https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.min.js');
+    const { clientWidth, clientHeight } = visual;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+    renderer.setSize(clientWidth, clientHeight);
+    renderer.domElement.classList.add('hero__canvas');
+    renderer.domElement.style.position = 'absolute';
+    renderer.domElement.style.inset = '0';
+    renderer.domElement.style.pointerEvents = 'none';
+    visual.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, clientWidth / clientHeight, 0.1, 100);
+    camera.position.set(0, 0, 3.6);
+
+    const pointsCount = 1600;
+    const positions = new Float32Array(pointsCount * 3);
+    const colors = new Float32Array(pointsCount * 3);
+
+    const cyan = new THREE.Color('#00e6ff');
+    const magenta = new THREE.Color('#b64cff');
+
+    for (let i = 0; i < pointsCount; i += 1) {
+      const u = Math.random();
+      const v = Math.random();
+      const theta = 2 * Math.PI * u;
+      const phi = Math.acos(2 * v - 1);
+      const radius = 1.2 + (Math.random() - 0.5) * 0.08;
+
+      const x = radius * Math.sin(phi) * Math.cos(theta);
+      const y = radius * Math.sin(phi) * Math.sin(theta);
+      const z = radius * Math.cos(phi);
+
+      const idx = i * 3;
+      positions[idx] = x;
+      positions[idx + 1] = y;
+      positions[idx + 2] = z;
+
+      const color = i % 2 === 0 ? cyan : magenta;
+      colors[idx] = color.r;
+      colors[idx + 1] = color.g;
+      colors[idx + 2] = color.b;
     }
 
-    function validateEmail(email) {
-        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return pattern.test(String(email).toLowerCase());
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const material = new THREE.PointsMaterial({
+      size: 0.02,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.85,
+      depthWrite: false
+    });
+
+    const points = new THREE.Points(geometry, material);
+    scene.add(points);
+
+    let animationFrameId = 0;
+
+    const render = () => {
+      points.rotation.y += 0.0025;
+      points.rotation.x += 0.0009;
+      renderer.render(scene, camera);
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    const handleResize = () => {
+      const { clientWidth: width, clientHeight: height } = visual;
+      renderer.setSize(width, height);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    const stopAnimation = () => {
+      cancelAnimationFrame(animationFrameId);
+      renderer.dispose();
+      geometry.dispose();
+      material.dispose();
+      if (renderer.domElement.parentNode) {
+        renderer.domElement.parentNode.removeChild(renderer.domElement);
+      }
+      window.removeEventListener('resize', handleResize);
+    };
+
+    const handleMotionQuery = (event) => {
+      if (event.matches) {
+        stopAnimation();
+      }
+    };
+
+    if (typeof prefersReducedMotion.addEventListener === 'function') {
+      prefersReducedMotion.addEventListener('change', handleMotionQuery);
+    } else if (typeof prefersReducedMotion.addListener === 'function') {
+      prefersReducedMotion.addListener(handleMotionQuery);
     }
 
-    async function sendToFormspree(formData) {
-        return fetch(config.formspreeEndpoint, {
-            method: "POST",
-            headers: {
-                Accept: "application/json"
-            },
-            body: formData
-        });
-    }
+    const handleMobileChange = (event) => {
+      if (event.matches) {
+        stopAnimation();
+      }
+    };
 
-    function openMailFallback(formData) {
-        const subject = `Р—Р°РїСЂРѕСЃ РЅР° РёСЃСЃР»РµРґРѕРІР°РЅРёРµ РѕС‚ ${formData.get("company") || "РєРѕРјРїР°РЅРёРё"}`;
-        const lines = [
-            "РќРѕРІС‹Р№ Р·Р°РїСЂРѕСЃ РЅР° РёСЃСЃР»РµРґРѕРІР°РЅРёРµ:",
-            `РќР°Р·РІР°РЅРёРµ РєРѕРјРїР°РЅРёРё: ${formData.get("company") || ""}`,
-            `Р’РµР±-СЃР°Р№С‚: ${formData.get("website") || ""}`,
-            `РћС‚СЂР°СЃР»СЊ: ${formData.get("industry") || ""}`,
-            `РљРѕРЅС‚Р°РєС‚РЅРѕРµ Р»РёС†Рѕ: ${formData.get("contact_person") || ""}`,
-            `Email: ${formData.get("email") || ""}`,
-            "",
-            "РљРѕРјРјРµРЅС‚Р°СЂРёР№:",
-            formData.get("message") || "Р‘РµР· РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ"
-        ];
-        const body = lines.join("\n");
-        window.location.href = `mailto:${config.fallbackEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        showStatus("РћС‚РєСЂС‹Р»РѕСЃСЊ РїРёСЃСЊРјРѕ РІ РїРѕС‡С‚РѕРІРѕРј РєР»РёРµРЅС‚Рµ. Р•СЃР»Рё СЌС‚РѕРіРѕ РЅРµ РїСЂРѕРёР·РѕС€Р»Рѕ, РЅР°РїРёС€РёС‚Рµ РЅР° hello@trendinsightlab.com.", "success");
+    if (typeof isMobile.addEventListener === 'function') {
+      isMobile.addEventListener('change', handleMobileChange);
+    } else if (typeof isMobile.addListener === 'function') {
+      isMobile.addListener(handleMobileChange);
     }
+  } catch (error) {
+    console.warn('Не удалось инициализировать дополнительную анимацию.', error);
+  }
+}
 
-    function showStatus(message, type) {
-        status.textContent = message;
-        status.classList.remove("form__status--error", "form__status--success");
-        if (type === "error") {
-            status.classList.add("form__status--error");
-        }
-        if (type === "success") {
-            status.classList.add("form__status--success");
-        }
-    }
+if (form) {
+  form.addEventListener('submit', submitForm);
+  bindFieldListeners();
+}
 
-    function resetStatus() {
-        status.textContent = "";
-        status.classList.remove("form__status--error", "form__status--success");
-    }
-})();
+if (mailtoButton) {
+  mailtoButton.addEventListener('click', handleMailtoClick);
+}
+
+initNavigation();
+initOptionalGlobe();
