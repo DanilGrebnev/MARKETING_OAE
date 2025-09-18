@@ -30,10 +30,11 @@ class NetworkAnimation {
       springRest: 36, // px
       repulsion: 450, // px^2 strength
       damping: 0.9,
-      jitter: 0.15,
+      jitter: 0.28,
       edgeOpacity: 0.22,
       nodeSize: [1.2, 2.0], // px radius baseline (smaller)
       hubSize: [2.4, 3.8],
+      motionScale: 1.75, // scale for movement amplitude
     }
 
     // Core
@@ -179,7 +180,12 @@ class NetworkAnimation {
           .sort((u, v) => u.d - v.d)
           .slice(0, THREE.MathUtils.randInt(kMin, kMax))
         nearest.forEach(({ j }) => {
-          if (i < j) this.edges.push([i, j])
+          if (i < j) {
+            const dx = this.nodes[i].x - this.nodes[j].x
+            const dy = this.nodes[i].y - this.nodes[j].y
+            const rest = Math.hypot(dx, dy)
+            this.edges.push({ a: i, b: j, rest })
+          }
         })
       })
     })
@@ -196,8 +202,16 @@ class NetworkAnimation {
         byCluster.get(cb)[Math.floor(Math.random() * byCluster.get(cb).length)]
       const a = Math.min(ia, ib),
         b = Math.max(ia, ib)
-      if (!this.edges.some((e) => e[0] === a && e[1] === b))
-        this.edges.push([a, b])
+      if (
+        !this.edges.some(
+          (e) => (e.a === a && e.b === b) || (e.a === b && e.b === a)
+        )
+      ) {
+        const dx = this.nodes[a].x - this.nodes[b].x
+        const dy = this.nodes[a].y - this.nodes[b].y
+        const rest = Math.hypot(dx, dy)
+        this.edges.push({ a, b, rest })
+      }
     }
   }
 
@@ -205,7 +219,7 @@ class NetworkAnimation {
     // Edges as single LineSegments
     const edgePositions = new Float32Array(this.edges.length * 2 * 3)
     for (let i = 0; i < this.edges.length; i++) {
-      const [aIdx, bIdx] = this.edges[i]
+      const { a: aIdx, b: bIdx } = this.edges[i]
       const a = this.nodes[aIdx]
       const b = this.nodes[bIdx]
       edgePositions.set([a.x, a.y, 0], i * 6 + 0)
@@ -252,7 +266,8 @@ class NetworkAnimation {
   }
 
   _physicsStep(dt) {
-    const { springK, springRest, repulsion, damping, jitter } = this.config
+    const { springK, springRest, repulsion, damping, jitter, motionScale } =
+      this.config
 
     // Repulsion (approximate: cluster-local by neighborhood from edges)
     for (let i = 0; i < this.nodes.length; i++) {
@@ -265,8 +280,9 @@ class NetworkAnimation {
       // Build neighbor list on the fly (sparse)
       // Note: O(E), acceptable for ~1k edges
       for (let e = 0; e < this.edges.length; e++) {
-        const ia = this.edges[e][0]
-        const ib = this.edges[e][1]
+        const ed = this.edges[e]
+        const ia = ed.a !== undefined ? ed.a : this.edges[e][0]
+        const ib = ed.b !== undefined ? ed.b : this.edges[e][1]
         if (ia !== i && ib !== i) continue
         const j = ia === i ? ib : ia
         const b = this.nodes[j]
@@ -275,15 +291,16 @@ class NetworkAnimation {
         const dist = Math.hypot(dx, dy) + 0.0001
 
         // spring
-        const stretch = dist - springRest
+        const rest = ed.rest !== undefined ? ed.rest : springRest
+        const stretch = dist - rest
         const k = springK
-        fx += (dx / dist) * (stretch * k)
-        fy += (dy / dist) * (stretch * k)
+        fx += (dx / dist) * (stretch * k) * motionScale
+        fy += (dy / dist) * (stretch * k) * motionScale
 
         // repulsion
         const inv = repulsion / (dist * dist)
-        fx -= (dx / dist) * inv * 0.35
-        fy -= (dy / dist) * inv * 0.35
+        fx -= (dx / dist) * inv * 0.35 * motionScale
+        fy -= (dy / dist) * inv * 0.35 * motionScale
       }
 
       a.vx = (a.vx + fx * dt) * damping
@@ -334,7 +351,9 @@ class NetworkAnimation {
     // Update edges
     const pos = this.edgeMesh.geometry.getAttribute("position")
     for (let i = 0; i < this.edges.length; i++) {
-      const [aIdx, bIdx] = this.edges[i]
+      const ed = this.edges[i]
+      const aIdx = ed.a !== undefined ? ed.a : this.edges[i][0]
+      const bIdx = ed.b !== undefined ? ed.b : this.edges[i][1]
       const a = this.nodes[aIdx]
       const b = this.nodes[bIdx]
       pos.setXYZ(i * 2 + 0, a.x, a.y, 0)
