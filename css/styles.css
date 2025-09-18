@@ -218,6 +218,7 @@ main {
   place-items: center;
   width: min(520px, 100%);
   aspect-ratio: 1 / 1;
+  background: transparent;
 }
 
 .hero__visual::before {
@@ -233,12 +234,12 @@ main {
 .hero__visual--network {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow: visible;
   display: grid;
   place-items: stretch;
-  border-radius: 28px;
-  background: linear-gradient(180deg, #0f1226 0%, #1a1d3b 100%);
-  box-shadow: 0 32px 72px rgba(6, 7, 26, 0.55);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   border: none;
   grid-template-areas: "stage";
 }
@@ -438,7 +439,6 @@ main {
   height: 100%;
   opacity: 0.55;
 }
-
 
 @keyframes starDrift {
   0% {
@@ -880,4 +880,3 @@ main {
 .form-status--error {
   color: #ff7bc2;
 }
-

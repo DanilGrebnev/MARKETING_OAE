@@ -32,8 +32,8 @@ class NetworkAnimation {
       damping: 0.9,
       jitter: 0.15,
       edgeOpacity: 0.22,
-      nodeSize: [1.6, 2.6], // px radius baseline (scaled by dpr)
-      hubSize: [3.6, 6.0],
+      nodeSize: [1.2, 2.0], // px radius baseline (smaller)
+      hubSize: [2.4, 3.8],
     }
 
     // Core
@@ -41,7 +41,7 @@ class NetworkAnimation {
     this.camera = new THREE.OrthographicCamera(0, 1, 1, 0, -1000, 1000)
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
-    this.renderer.setClearColor(this.colors.bg, 1)
+    this.renderer.setClearColor(this.colors.bg, 0)
 
     this.container.appendChild(this.renderer.domElement)
 
@@ -202,66 +202,6 @@ class NetworkAnimation {
   }
 
   _buildGPU() {
-    // Nodes as instanced planes (screen-aligned circles in fragment)
-    const instanceCount = this.nodes.length
-    const geometry = new THREE.InstancedBufferGeometry()
-
-    // Quad for a unit circle sprite (two triangles)
-    const base = new THREE.PlaneGeometry(1, 1).toNonIndexed()
-    geometry.attributes.position = base.attributes.position
-    geometry.attributes.uv = base.attributes.uv
-    geometry.setIndex(base.index)
-
-    const offsets = new THREE.InstancedBufferAttribute(
-      new Float32Array(instanceCount * 2),
-      2
-    )
-    const sizes = new THREE.InstancedBufferAttribute(
-      new Float32Array(instanceCount),
-      1
-    )
-    for (let i = 0; i < instanceCount; i++) {
-      offsets.setXY(i, this.nodes[i].x, this.nodes[i].y)
-      sizes.setX(i, this.nodes[i].size)
-    }
-    geometry.setAttribute("offset", offsets)
-    geometry.setAttribute("size", sizes)
-
-    const material = new THREE.ShaderMaterial({
-      transparent: true,
-      depthWrite: false,
-      uniforms: {
-        uColor: { value: this.colors.node },
-      },
-      vertexShader: `
-        attribute vec2 offset;
-        attribute float size;
-        void main(){
-          vec2 scaled = position.xy * size;
-          vec3 pos = vec3(offset + scaled, 0.0);
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform vec3 uColor;
-        void main(){
-          // circular alpha
-          vec2 p = gl_PointCoord * 2.0 - 1.0; // not used for planes, emulate soft edge
-          // simple radial falloff using UV from plane: reconstruct circle via distance from center
-          // Using varying-less trick: compute from gl_FragCoord is costly; approximate with geometry uv
-          // Since plane uv is not passed, draw soft disc using distance to quad center via gl_FragCoord not ideal.
-          // Instead draw crisp disc using step on min(abs()) from quad center in NDC is complex. We'll approximate circle using length of normalized pos in plane space.
-          // For visual simplicity use smooth alpha mask based on distance from quad center provided by varying-less approach is limited.
-          // We'll fallback to simple soft square with slight corner fade to look circular enough at small sizes.
-          float alpha = 1.0;
-          gl_FragColor = vec4(uColor, alpha);
-        }
-      `,
-    })
-
-    this.nodeMesh = new THREE.Mesh(geometry, material)
-    this.scene.add(this.nodeMesh)
-
     // Edges as single LineSegments
     const edgePositions = new Float32Array(this.edges.length * 2 * 3)
     for (let i = 0; i < this.edges.length; i++) {
@@ -284,6 +224,31 @@ class NetworkAnimation {
     })
     this.edgeMesh = new THREE.LineSegments(edgeGeom, edgeMat)
     this.scene.add(this.edgeMesh)
+
+    // Nodes as InstancedMesh of spheres (true circular points)
+    const instanceCount = this.nodes.length
+    const sphereGeom = new THREE.SphereGeometry(0.5, 12, 12)
+    const nodeMat = new THREE.MeshBasicMaterial({
+      color: this.colors.node,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+    })
+    this.nodeMesh = new THREE.InstancedMesh(sphereGeom, nodeMat, instanceCount)
+    const m = new THREE.Matrix4()
+    const q = new THREE.Quaternion()
+    const s = new THREE.Vector3()
+    for (let i = 0; i < instanceCount; i++) {
+      const n = this.nodes[i]
+      m.compose(
+        new THREE.Vector3(n.x, n.y, 0),
+        q,
+        s.set(n.size, n.size, n.size)
+      )
+      this.nodeMesh.setMatrixAt(i, m)
+    }
+    this.nodeMesh.instanceMatrix.needsUpdate = true
+    this.scene.add(this.nodeMesh)
   }
 
   _physicsStep(dt) {
@@ -351,12 +316,20 @@ class NetworkAnimation {
   }
 
   _syncGPU() {
-    // Update node instances
-    const offsets = this.nodeMesh.geometry.getAttribute("offset")
+    // Update node instances (matrix)
+    const m = new THREE.Matrix4()
+    const q = new THREE.Quaternion()
+    const s = new THREE.Vector3()
     for (let i = 0; i < this.nodes.length; i++) {
-      offsets.setXY(i, this.nodes[i].x, this.nodes[i].y)
+      const n = this.nodes[i]
+      m.compose(
+        new THREE.Vector3(n.x, n.y, 0),
+        q,
+        s.set(n.size, n.size, n.size)
+      )
+      this.nodeMesh.setMatrixAt(i, m)
     }
-    offsets.needsUpdate = true
+    this.nodeMesh.instanceMatrix.needsUpdate = true
 
     // Update edges
     const pos = this.edgeMesh.geometry.getAttribute("position")
@@ -429,9 +402,6 @@ class NetworkAnimation {
 ;(function init() {
   const container = document.querySelector(".hero__visual")
   if (!container) return
-
-  // Ensure container has dark bg
-  container.style.background = "#0f1322"
 
   const vis = new NetworkAnimation(container)
   // Expose for possible manual cleanup
