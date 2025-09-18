@@ -1,111 +1,163 @@
 ﻿(function () {
-    const form = document.getElementById("consultation-form");
+    const form = document.getElementById("contactForm");
     if (!form) {
         return;
     }
 
-    const config = {
-        enableFormspree: form.dataset.formspree === "true",
-        formspreeEndpoint: form.dataset.formspreeEndpoint || "",
-        fallbackEmail: "hello@trendinsightlab.com"
-    };
+    const submitButton = form.querySelector("button[type='submit']");
+    const mailButton = form.querySelector("[data-mailto]");
+    const statusNode = document.getElementById("formStatus");
+    const formspreeEndpoint = form.getAttribute("data-formspree-endpoint") || "https://formspree.io/f/YOUR_ID";
+    const fallbackEmail = form.getAttribute("data-fallback-email") || "hello@trendscope.team";
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    const status = document.createElement("p");
-    status.className = "form__status";
-    status.setAttribute("role", "status");
-    status.setAttribute("aria-live", "polite");
-    form.appendChild(status);
+    let isSubmitting = false;
 
     form.addEventListener("submit", async function (event) {
         event.preventDefault();
-        resetStatus();
-
-        const formData = new FormData(form);
-        const validation = validateForm(formData);
-
-        if (!validation.valid) {
-            showStatus(validation.message, "error");
+        if (isSubmitting) {
             return;
         }
 
-        if (config.enableFormspree && config.formspreeEndpoint) {
-            try {
-                const response = await sendToFormspree(formData);
-                if (response.ok) {
-                    form.reset();
-                    showStatus("Спасибо! Запрос отправлен и мы скоро свяжемся с вами.", "success");
-                    return;
-                }
-            } catch (error) {
-                console.warn("Formspree request failed, fallback to mailto.", error);
-            }
+        const formData = new FormData(form);
+        resetStatus();
+
+        if (formData.get("_honey")) {
+            return;
         }
 
-        openMailFallback(formData);
+        const error = validate(formData);
+        if (error) {
+            showStatus(error, "error");
+            return;
+        }
+
+        setLoadingState(true);
+
+        try {
+            const response = await fetch(formspreeEndpoint, {
+                method: "POST",
+                headers: {
+                    Accept: "application/json"
+                },
+                body: formData
+            });
+
+            if (response.ok) {
+                form.reset();
+                showStatus("Спасибо! Мы получили ваш запрос и скоро ответим.", "success");
+            } else {
+                fallbackToMail(formData, "Не удалось отправить форму. Мы подготовили письмо для отправки вручную.");
+            }
+        } catch (error) {
+            console.warn("Form submission failed, fallback to mailto.", error);
+            fallbackToMail(formData, "Сеть недоступна. Мы открыли черновик письма на почте.");
+        } finally {
+            setLoadingState(false);
+        }
     });
 
-    function validateForm(formData) {
-        const requiredFields = ["company", "website", "industry", "contact_person", "email", "consent"];
-        for (const field of requiredFields) {
-            if (!formData.get(field)) {
-                return { valid: false, message: "Пожалуйста, заполните все обязательные поля." };
+    if (mailButton) {
+        mailButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            if (isSubmitting) {
+                return;
             }
-        }
 
-        const email = formData.get("email");
-        if (!validateEmail(email)) {
-            return { valid: false, message: "Проверьте корректность email адреса." };
-        }
+            const formData = new FormData(form);
+            const error = validate(formData);
+            if (error) {
+                showStatus(error, "error");
+                return;
+            }
 
-        return { valid: true };
-    }
-
-    function validateEmail(email) {
-        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return pattern.test(String(email).toLowerCase());
-    }
-
-    async function sendToFormspree(formData) {
-        return fetch(config.formspreeEndpoint, {
-            method: "POST",
-            headers: {
-                Accept: "application/json"
-            },
-            body: formData
+            fallbackToMail(formData, "Мы открыли письмо в почтовом клиенте. Если этого не произошло, напишите на " + fallbackEmail + ".");
         });
     }
 
-    function openMailFallback(formData) {
-        const subject = `Запрос на исследование от ${formData.get("company") || "компании"}`;
+    function validate(formData) {
+        const company = formData.get("company");
+        if (!company || !String(company).trim()) {
+            return "Укажите название компании.";
+        }
+
+        const contact = formData.get("contact_person");
+        if (!contact || !String(contact).trim()) {
+            return "Добавьте контактное лицо.";
+        }
+
+        const email = formData.get("email");
+        if (!email || !String(email).trim()) {
+            return "Заполните email.";
+        }
+
+        if (!emailPattern.test(String(email).toLowerCase())) {
+            return "Проверьте корректность email.";
+        }
+
+        const consentField = form.querySelector("input[name='consent']");
+        if (consentField && !consentField.checked) {
+            return "Для отправки требуется согласие на обработку данных.";
+        }
+
+        return "";
+    }
+
+    function fallbackToMail(formData, message) {
+        const mailto = buildMailto(formData);
+        window.location.href = mailto;
+        if (message) {
+            showStatus(message, "info");
+        }
+    }
+
+    function buildMailto(formData) {
+        const subject = `Запрос на исследование — ${formData.get("company") || "компания"}`;
         const lines = [
-            "Новый запрос на исследование:",
-            `Название компании: ${formData.get("company") || ""}`,
+            "Новый запрос на маркетинговое исследование:",
+            `Компания: ${formData.get("company") || ""}`,
             `Веб-сайт: ${formData.get("website") || ""}`,
             `Отрасль: ${formData.get("industry") || ""}`,
             `Контактное лицо: ${formData.get("contact_person") || ""}`,
             `Email: ${formData.get("email") || ""}`,
             "",
             "Комментарий:",
-            formData.get("message") || "Без комментариев"
+            formData.get("comment") || "Без комментариев"
         ];
-        const body = lines.join("\n");
-        window.location.href = `mailto:${config.fallbackEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        showStatus("Открылось письмо в почтовом клиенте. Если этого не произошло, напишите на hello@trendinsightlab.com.", "success");
+        const body = encodeURIComponent(lines.join("\n"));
+        const encodedSubject = encodeURIComponent(subject);
+        return `mailto:${fallbackEmail}?subject=${encodedSubject}&body=${body}`;
+    }
+
+    function setLoadingState(active) {
+        isSubmitting = active;
+        if (submitButton) {
+            submitButton.disabled = active;
+            submitButton.classList.toggle("button--loading", active);
+            submitButton.setAttribute("aria-busy", String(active));
+        }
+        if (mailButton) {
+            mailButton.disabled = active;
+            mailButton.setAttribute("aria-disabled", String(active));
+        }
     }
 
     function showStatus(message, type) {
-        status.textContent = message;
-        status.classList.remove("form__status--error", "form__status--success");
-        if (type === "error") {
-            status.classList.add("form__status--error");
+        if (!statusNode) {
+            return;
         }
-        if (type === "success") {
-            status.classList.add("form__status--success");
+        statusNode.textContent = message;
+        statusNode.classList.remove("form-status--success", "form-status--error", "form-status--info");
+        if (type) {
+            statusNode.classList.add(`form-status--${type}`);
         }
     }
 
     function resetStatus() {
-        status.textContent = "";
-        status.classList.remove("form__status--error", "form__status--success");
+        if (!statusNode) {
+            return;
+        }
+        statusNode.textContent = "";
+        statusNode.classList.remove("form-status--success", "form-status--error", "form-status--info");
     }
 })();
