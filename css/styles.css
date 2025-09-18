@@ -216,7 +216,7 @@ main {
   justify-self: center;
   display: grid;
   place-items: center;
-  width: min(520px, 100%);
+  width: min(820px, 100%);
   aspect-ratio: 1 / 1;
   background: transparent;
 }

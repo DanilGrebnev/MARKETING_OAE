@@ -1,5 +1,44 @@
 import * as THREE from "https://unpkg.com/three@0.155.0/build/three.module.js"
 
+// Глобальные настройки визуализации (SNAKE_CASE)
+// NODE_COUNT — общее количество узлов графа
+const NODE_COUNT = 380
+// CLUSTERS_MIN / CLUSTERS_MAX — диапазон количества кластеров (выбирается случайно в этом диапазоне)
+const CLUSTERS_MIN = 5
+const CLUSTERS_MAX = 10
+// CLUSTER_RADIUS_* — радиус кластеров в пикселях (минимум/максимум)
+const CLUSTER_RADIUS_MIN_PX = 40
+const CLUSTER_RADIUS_MAX_PX = 100
+// HUB_RATE — доля «хабов» (увеличенных узлов) среди всех узлов
+const HUB_RATE = 0.08
+// LINK_PER_NODE_MIN/MAX — целевой диапазон числа связей для одного узла внутри кластера
+const LINK_PER_NODE_MIN = 1
+const LINK_PER_NODE_MAX = 3
+// INTER_CLUSTER_FACTOR — множитель числа межкластерных рёбер (меньше — реже)
+const INTER_CLUSTER_FACTOR = 6
+// GRAPH_DENSITY — коэффициент плотности графа: меньше — реже, больше — гуще (может быть > 1)
+const GRAPH_DENSITY = 2
+// SPRING_K — жёсткость «пружины» ребра (сила стягивания к длине покоя)
+const SPRING_K = 0.012
+// SPRING_REST_PX — длина покоя пружины в пикселях (используется по умолчанию, если для ребра не задана собственная)
+const SPRING_REST_PX = 36
+// REPULSION_STRENGTH — сила отталкивания между соседями (px^2)
+const REPULSION_STRENGTH = 450
+// DAMPING — коэффициент демпфирования скоростей (0..1)
+const DAMPING = 0.9
+// JITTER — случайные микро-возмущения (визуальная «живость»)
+const JITTER = 0.28
+// EDGE_OPACITY — прозрачность линий рёбер (0..1)
+const EDGE_OPACITY = 0.22
+// NODE_SIZE_MIN/MAX_PX — базовый размер узлов (в пикселях), масштабируется под DPR
+const NODE_SIZE_MIN_PX = 1.2
+const NODE_SIZE_MAX_PX = 2.0
+// HUB_SIZE_MIN/MAX_PX — размер хабов (в пикселях), масштабируется под DPR
+const HUB_SIZE_MIN_PX = 2.4
+const HUB_SIZE_MAX_PX = 3.8
+// MOTION_SCALE — масштаб амплитуды движения (увеличивает расстояние колебаний)
+const MOTION_SCALE = 1.75
+
 // Network animation: dark background, blue nodes/edges, subtle motion
 // - Nodes via InstancedMesh
 // - Edges via single BufferGeometry + LineSegments
@@ -21,20 +60,22 @@ class NetworkAnimation {
 
     // Config
     this.config = {
-      nodeCount: 380,
-      clusters: Math.floor(THREE.MathUtils.randInt(6, 8)),
-      clusterRadius: [42, 110], // in pixels; later scaled
-      hubRate: 0.08, // fraction of nodes to be hubs
-      linkPerNode: [3, 6], // target degree bounds
-      springK: 0.012,
-      springRest: 36, // px
-      repulsion: 450, // px^2 strength
-      damping: 0.9,
-      jitter: 0.28,
-      edgeOpacity: 0.22,
-      nodeSize: [1.2, 2.0], // px radius baseline (smaller)
-      hubSize: [2.4, 3.8],
-      motionScale: 1.75, // scale for movement amplitude
+      nodeCount: NODE_COUNT,
+      clusters: Math.floor(THREE.MathUtils.randInt(CLUSTERS_MIN, CLUSTERS_MAX)),
+      clusterRadius: [CLUSTER_RADIUS_MIN_PX, CLUSTER_RADIUS_MAX_PX],
+      hubRate: HUB_RATE,
+      linkPerNode: [LINK_PER_NODE_MIN, LINK_PER_NODE_MAX],
+      interClusterFactor: INTER_CLUSTER_FACTOR,
+      graphDensity: GRAPH_DENSITY,
+      springK: SPRING_K,
+      springRest: SPRING_REST_PX,
+      repulsion: REPULSION_STRENGTH,
+      damping: DAMPING,
+      jitter: JITTER,
+      edgeOpacity: EDGE_OPACITY,
+      nodeSize: [NODE_SIZE_MIN_PX, NODE_SIZE_MAX_PX],
+      hubSize: [HUB_SIZE_MIN_PX, HUB_SIZE_MAX_PX],
+      motionScale: MOTION_SCALE,
     }
 
     // Core
@@ -178,7 +219,15 @@ class NetworkAnimation {
             d: (this.nodes[j].x - a.x) ** 2 + (this.nodes[j].y - a.y) ** 2,
           }))
           .sort((u, v) => u.d - v.d)
-          .slice(0, THREE.MathUtils.randInt(kMin, kMax))
+          .slice(
+            0,
+            Math.max(
+              1,
+              Math.round(
+                THREE.MathUtils.randInt(kMin, kMax) * this.config.graphDensity
+              )
+            )
+          )
         nearest.forEach(({ j }) => {
           if (i < j) {
             const dx = this.nodes[i].x - this.nodes[j].x
@@ -192,7 +241,15 @@ class NetworkAnimation {
 
     // A few inter-cluster edges
     const clusters = Array.from(byCluster.keys())
-    for (let t = 0; t < clusters.length * 14; t++) {
+    const crossCount = Math.max(
+      1,
+      Math.round(
+        clusters.length *
+          this.config.interClusterFactor *
+          this.config.graphDensity
+      )
+    )
+    for (let t = 0; t < crossCount; t++) {
       const ca = clusters[Math.floor(Math.random() * clusters.length)]
       let cb = clusters[Math.floor(Math.random() * clusters.length)]
       if (cb === ca) cb = (cb + 1) % clusters.length
