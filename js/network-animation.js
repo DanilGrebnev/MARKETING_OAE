@@ -17,11 +17,11 @@ const LINK_PER_NODE_MAX = 3
 // INTER_CLUSTER_FACTOR — множитель числа межкластерных рёбер (меньше — реже)
 const INTER_CLUSTER_FACTOR = 6
 // GRAPH_DENSITY — коэффициент плотности графа: меньше — реже, больше — гуще (может быть > 1)
-const GRAPH_DENSITY = 2
+const GRAPH_DENSITY = 1.5
 // SPRING_K — жёсткость «пружины» ребра (сила стягивания к длине покоя)
-const SPRING_K = 0.012
+const SPRING_K = 0
 // SPRING_REST_PX — длина покоя пружины в пикселях (используется по умолчанию, если для ребра не задана собственная)
-const SPRING_REST_PX = 36
+const SPRING_REST_PX = 100
 // REPULSION_STRENGTH — сила отталкивания между соседями (px^2)
 const REPULSION_STRENGTH = 450
 // DAMPING — коэффициент демпфирования скоростей (0..1)
@@ -38,6 +38,13 @@ const HUB_SIZE_MIN_PX = 2.4
 const HUB_SIZE_MAX_PX = 3.8
 // MOTION_SCALE — масштаб амплитуды движения (увеличивает расстояние колебаний)
 const MOTION_SCALE = 1.75
+// WALL_PADDING_PX — отступ от краёв контейнера, ближе которого узлы не подходят
+// Учитывается вместе с размером узла, чтобы точки не касались стенок визуально
+const WALL_PADDING_PX = 50
+// CLUSTER_CENTER_MARGIN_PX — минимальный отступ центров кластеров от краёв контейнера (в пикселях)
+const CLUSTER_CENTER_MARGIN_PX = 50
+// CLUSTER_CENTER_MIN_DIST_FACTOR — минимальная дистанция между центрами кластеров как доля от min(width, height)
+const CLUSTER_CENTER_MIN_DIST_FACTOR = 0.28
 
 // Network animation: dark background, blue nodes/edges, subtle motion
 // - Nodes via InstancedMesh
@@ -133,8 +140,9 @@ class NetworkAnimation {
   _generateGraph() {
     // Create cluster centers
     const clusterCenters = []
-    const margin = 80
-    const minDist = Math.min(this.width, this.height) * 0.22
+    const margin = CLUSTER_CENTER_MARGIN_PX
+    const minDist =
+      Math.min(this.width, this.height) * CLUSTER_CENTER_MIN_DIST_FACTOR
     let attempts = 0
     while (clusterCenters.length < this.config.clusters && attempts < 4000) {
       const x = THREE.MathUtils.randFloat(margin, this.width - margin)
@@ -365,11 +373,11 @@ class NetworkAnimation {
     }
 
     // Integrate and keep inside bounds with soft walls
-    const pad = 18
     for (let i = 0; i < this.nodes.length; i++) {
       const n = this.nodes[i]
       n.x += n.vx
       n.y += n.vy
+      const pad = WALL_PADDING_PX + n.size
       if (n.x < pad) {
         n.x = pad
         n.vx *= -0.5
