@@ -32,7 +32,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
     <header class="site-header" id="top">
@@ -73,7 +73,6 @@
     <main>
       <section class="hero" id="hero">
         <div class="hero__content">
-          <p class="hero__eyebrow">&#127760; Landing Page (Business Card)</p>
           <h1 class="hero__title">
             Marketing Research and Digital Trends Monitoring
           </h1>
@@ -93,80 +92,30 @@
             <span>Practical business recommendations</span>
           </div>
         </div>
-        <div class="hero__visual" role="presentation" aria-hidden="true">
-          <svg
-            class="hero__globe"
-            viewBox="0 0 400 400"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <radialGradient id="glowGradient" fx="35%" fy="35%">
-                <stop offset="0%" stop-color="#00e6ff" stop-opacity="0.9" />
-                <stop offset="45%" stop-color="#b64cff" stop-opacity="0.55" />
-                <stop offset="100%" stop-color="#0f1330" stop-opacity="0" />
-              </radialGradient>
-              <linearGradient
-                id="wireGradient"
-                x1="0%"
-                y1="0%"
-                x2="100%"
-                y2="100%"
-              >
-                <stop offset="0%" stop-color="#00e6ff" />
-                <stop offset="100%" stop-color="#b64cff" />
-              </linearGradient>
-              <filter id="softGlow">
-                <feGaussianBlur stdDeviation="6" result="blur" />
-                <feBlend in="SourceGraphic" in2="blur" mode="screen" />
-              </filter>
-            </defs>
-            <circle
-              class="hero__globe-gradient"
-              cx="200"
-              cy="200"
-              r="180"
-              fill="url(#glowGradient)"
-            />
-            <g
-              class="hero__globe-wire"
-              stroke="url(#wireGradient)"
-              stroke-width="1.5"
-              fill="none"
-              filter="url(#softGlow)"
+        <div
+          class="hero__visual hero__visual--network"
+          role="img"
+          aria-label="3D network visualization"
+        >
+          <noscript>
+            <svg
+              class="network-visual__fallback"
+              viewBox="0 0 600 600"
+              focusable="false"
+              aria-hidden="true"
             >
-              <ellipse cx="200" cy="200" rx="160" ry="60" />
-              <ellipse
-                cx="200"
-                cy="200"
-                rx="120"
-                ry="40"
-                transform="rotate(30 200 200)"
-              />
-              <ellipse
-                cx="200"
-                cy="200"
-                rx="120"
-                ry="40"
-                transform="rotate(-30 200 200)"
-              />
-              <ellipse
-                cx="200"
-                cy="200"
-                rx="140"
-                ry="70"
-                transform="rotate(15 200 200)"
-              />
-              <ellipse
-                cx="200"
-                cy="200"
-                rx="140"
-                ry="70"
-                transform="rotate(-15 200 200)"
-              />
-              <ellipse cx="200" cy="200" rx="110" ry="180" />
-            </g>
-            <circle cx="200" cy="200" r="6" fill="#ffffff" opacity="0.9" />
-          </svg>
+              <defs>
+                <radialGradient id="fallbackGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#182040" stop-opacity="0.85" />
+                  <stop offset="100%" stop-color="#0b1127" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <rect width="600" height="600" fill="#080b20" />
+              <circle cx="140" cy="180" r="60" fill="url(#fallbackGlow)" />
+              <circle cx="320" cy="320" r="50" fill="url(#fallbackGlow)" />
+              <circle cx="440" cy="220" r="40" fill="url(#fallbackGlow)" />
+            </svg>
+          </noscript>
         </div>
       </section>
 
@@ -397,7 +346,7 @@
     </footer>
 
     <script defer src="form.js" type="module"></script>
-    <script src="animation.js" type="module"></script>
+    <script src="js/network-animation.js" type="module"></script>
     <script src="navigation.js" type="module"></script>
   </body>
 </html>

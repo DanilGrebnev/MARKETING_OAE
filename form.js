@@ -3,6 +3,9 @@ const formStatus = document.querySelector("#formStatus")
 const submitButton = form?.querySelector('[data-role="submit"]')
 const mailtoButton = form?.querySelector('[data-role="mailto"]')
 
+const navToggle = document.querySelector(".nav-toggle")
+const mainNav = document.querySelector(".main-nav")
+
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i
 
 function updateStatus(type, message) {
@@ -205,6 +208,24 @@ function bindFieldListeners() {
   })
 }
 
+function initNavigation() {
+  if (!navToggle || !mainNav) return
+  navToggle.addEventListener("click", () => {
+    const expanded = navToggle.getAttribute("aria-expanded") === "true"
+    navToggle.setAttribute("aria-expanded", String(!expanded))
+    mainNav.classList.toggle("is-open", !expanded)
+  })
+
+  mainNav.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        navToggle.setAttribute("aria-expanded", "false")
+        mainNav.classList.remove("is-open")
+      }
+    })
+  })
+}
+
 if (form) {
   form.addEventListener("submit", submitForm)
   bindFieldListeners()
@@ -213,3 +234,5 @@ if (form) {
 if (mailtoButton) {
   mailtoButton.addEventListener("click", handleMailtoClick)
 }
+
+initNavigation()
