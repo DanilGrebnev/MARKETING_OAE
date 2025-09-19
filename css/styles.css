@@ -8,10 +8,15 @@
   --card-bg: rgba(255, 255, 255, 0.035);
   --card-border: rgba(0, 230, 255, 0.12);
   --transition-base: 220ms ease;
+  --header-height: 65px;
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  list-style: none;
 }
 
 html {
@@ -144,33 +149,70 @@ body::before {
 main {
   max-width: 1160px;
   margin: 0 auto;
-  padding: 4rem 1.5rem 6rem;
-}
-
-.section-heading h2 {
-  font-size: clamp(2rem, 4vw, 2.75rem);
-  margin-bottom: 0.75rem;
-  letter-spacing: -0.01em;
+  padding: 0 1.5rem 6rem;
+  overflow: hidden;
 }
 
 .section-heading p {
   color: var(--muted);
-  max-width: 620px;
   margin-top: 0;
 }
 
+.about .section-heading h2,
+.what .section-heading h2 {
+  text-align: center;
+}
+
+/* What We Do list with icons */
+.what .section-heading ul {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.what .section-heading li {
+  position: relative;
+  padding-left: 1.5rem;
+  color: var(--muted);
+}
+
+.what .section-heading li::before {
+  content: "✔";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+/* Reusable heading styles */
+.heading-2 {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  letter-spacing: -0.01em;
+}
+
+.heading-3 {
+  font-size: 1.2rem;
+}
+
+.heading-mb {
+  margin-bottom: 0.5rem;
+}
+
 .hero {
+  height: calc(100dvh - 65px);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
   gap: 3rem;
-  padding: 4rem 0 6rem;
+  /* padding: 2rem 0 5.5rem; */
   position: relative;
 }
 
 .hero__content {
   position: relative;
   z-index: 1;
+  align-self: center;
 }
 
 .hero__eyebrow {
@@ -182,9 +224,9 @@ main {
 }
 
 .hero__title {
-  font-size: clamp(2.75rem, 5vw, 4.25rem);
   line-height: 1.05;
-  margin: 0 0 1.5rem;
+  font-size: clamp(2.75rem, 5vw, 4.25rem);
+  margin-bottom: 20px;
 }
 
 .hero__subtitle {
@@ -216,9 +258,10 @@ main {
   justify-self: center;
   display: grid;
   place-items: center;
-  width: min(820px, 100%);
-  aspect-ratio: 1 / 1;
+  width: min(800px, 100%);
+  height: min(600px, 80vh);
   background: transparent;
+  z-index: 0;
 }
 
 .hero__visual::before {
@@ -535,7 +578,9 @@ main {
 .services,
 .method,
 .cases,
-.contact {
+.contact,
+.about,
+.what {
   margin-top: 4rem;
 }
 
@@ -552,11 +597,33 @@ main {
 }
 
 .method__grid {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .cases__grid {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .method__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cases__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .method__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .cases__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.anchor-offset {
+  scroll-margin-top: 72px;
 }
 
 .service-card,
@@ -615,11 +682,7 @@ main {
   margin-bottom: 1.25rem;
 }
 
-.service-card h3,
-.method-step h3 {
-  margin: 0 0 0.75rem;
-  font-size: 1.2rem;
-}
+/* h3 styles are handled by .heading-3 utility class */
 
 .service-card p,
 .method-step p,
@@ -753,7 +816,7 @@ main {
   .hero {
     grid-template-columns: minmax(0, 1fr);
     text-align: center;
-    padding-top: 2rem;
+    padding-top: 1rem;
   }
   .hero__content {
     order: 2;
@@ -807,6 +870,7 @@ main {
     opacity: 0;
     transition: transform var(--transition-base), opacity var(--transition-base);
     pointer-events: none;
+    z-index: 20;
   }
   .main-nav__list {
     flex-direction: column;

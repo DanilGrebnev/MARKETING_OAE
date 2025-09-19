@@ -1,30 +1,27 @@
-const navToggle = document.querySelector(".nav-toggle")
-const mainNav = document.querySelector(".main-nav")
-
-function closeNavigation() {
-  if (!navToggle || !mainNav) return
-  navToggle.setAttribute("aria-expanded", "false")
-  mainNav.classList.remove("is-open")
-}
-
-function openNavigation() {
-  if (!navToggle || !mainNav) return
-  navToggle.setAttribute("aria-expanded", "true")
-  mainNav.classList.add("is-open")
-}
-
-function toggleNavigation() {
-  if (!navToggle || !mainNav) return
-  const expanded = navToggle.getAttribute("aria-expanded") === "true"
-  if (expanded) {
-    closeNavigation()
-  } else {
-    openNavigation()
-  }
-}
-
 function initNavigation() {
+  let openBurgerMenu = false
+  const navToggle = document.querySelector(".nav-toggle")
+  const mainNav = document.querySelector(".main-nav")
+
   if (!navToggle || !mainNav) return
+
+  function closeNavigation() {
+    openBurgerMenu = false
+    mainNav.classList.remove("is-open")
+  }
+
+  function openNavigation() {
+    openBurgerMenu = true
+    mainNav.classList.add("is-open")
+  }
+
+  function toggleNavigation() {
+    if (openBurgerMenu) {
+      closeNavigation()
+    } else {
+      openNavigation()
+    }
+  }
 
   // Обработчик клика по кнопке меню
   navToggle.addEventListener("click", (event) => {
@@ -52,7 +49,6 @@ function initNavigation() {
     const isMobile = window.matchMedia("(max-width: 768px)").matches
 
     if (isMenuOpen && isMobile) {
-      // Проверяем, что клик был не по кнопке меню и не внутри меню
       if (
         !navToggle.contains(event.target) &&
         !mainNav.contains(event.target)
@@ -66,7 +62,7 @@ function initNavigation() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && mainNav.classList.contains("is-open")) {
       closeNavigation()
-      navToggle.focus() // Возвращаем фокус на кнопку меню
+      navToggle.focus()
     }
   })
 
@@ -78,5 +74,5 @@ function initNavigation() {
   })
 }
 
-// Инициализация навигации
-initNavigation()
+// Инициализация навигации (на случай, если DOM уже готов)
+document.addEventListener("DOMContentLoaded", initNavigation)

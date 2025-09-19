@@ -1,6 +1,6 @@
 import * as THREE from "https://unpkg.com/three@0.155.0/build/three.module.js"
 
-// Глобальные настройки визуализации (SNAKE_CASE)
+// Глобальные настройки визуализации
 // NODE_COUNT — общее количество узлов графа
 const NODE_COUNT = 380
 // CLUSTERS_MIN / CLUSTERS_MAX — диапазон количества кластеров (выбирается случайно в этом диапазоне)
@@ -19,7 +19,7 @@ const INTER_CLUSTER_FACTOR = 6
 // GRAPH_DENSITY — коэффициент плотности графа: меньше — реже, больше — гуще (может быть > 1)
 const GRAPH_DENSITY = 1.5
 // SPRING_K — жёсткость «пружины» ребра (сила стягивания к длине покоя)
-const SPRING_K = 0
+const SPRING_K = 0.008
 // SPRING_REST_PX — длина покоя пружины в пикселях (используется по умолчанию, если для ребра не задана собственная)
 const SPRING_REST_PX = 100
 // REPULSION_STRENGTH — сила отталкивания между соседями (px^2)
@@ -27,20 +27,28 @@ const REPULSION_STRENGTH = 450
 // DAMPING — коэффициент демпфирования скоростей (0..1)
 const DAMPING = 0.9
 // JITTER — случайные микро-возмущения (визуальная «живость»)
-const JITTER = 0.28
+const JITTER = 1
 // EDGE_OPACITY — прозрачность линий рёбер (0..1)
 const EDGE_OPACITY = 0.22
 // NODE_SIZE_MIN/MAX_PX — базовый размер узлов (в пикселях), масштабируется под DPR
 const NODE_SIZE_MIN_PX = 1.2
 const NODE_SIZE_MAX_PX = 2.0
 // HUB_SIZE_MIN/MAX_PX — размер хабов (в пикселях), масштабируется под DPR
-const HUB_SIZE_MIN_PX = 2.4
-const HUB_SIZE_MAX_PX = 3.8
+const HUB_SIZE_MIN_PX = 3
+const HUB_SIZE_MAX_PX = 6
 // MOTION_SCALE — масштаб амплитуды движения (увеличивает расстояние колебаний)
-const MOTION_SCALE = 1.75
+const MOTION_SCALE = 1.9
 // WALL_PADDING_PX — отступ от краёв контейнера, ближе которого узлы не подходят
 // Учитывается вместе с размером узла, чтобы точки не касались стенок визуально
-const WALL_PADDING_PX = 50
+const WALL_PADDING_PX = 1
+// CENTER_PULL_STRENGTH — сила притяжения к центру (0 = нет, больше = сильнее)
+const CENTER_PULL_STRENGTH = 0.002
+// CENTER_PULL_FREQUENCY — частота пульсации притяжения к центру
+const CENTER_PULL_FREQUENCY = 0.5
+// UNIFORM_NODES — если true, узлы распределяются по всей площади без кластеров
+const UNIFORM_NODES = false
+// GRID_JITTER — случайный сдвиг узла внутри ячейки сетки (0..0.5)
+const GRID_JITTER = 0.35
 // CLUSTER_CENTER_MARGIN_PX — минимальный отступ центров кластеров от краёв контейнера (в пикселях)
 const CLUSTER_CENTER_MARGIN_PX = 50
 // CLUSTER_CENTER_MIN_DIST_FACTOR — минимальная дистанция между центрами кластеров как доля от min(width, height)
@@ -61,7 +69,7 @@ class NetworkAnimation {
     // Palette
     this.colors = {
       bg: 0x0f1322,
-      node: new THREE.Color("#9acbff"),
+      node: new THREE.Color("white"), // #9acbff
       edge: new THREE.Color("#7fb6ff"),
     }
 
@@ -138,6 +146,145 @@ class NetworkAnimation {
   }
 
   _generateGraph() {
+    // Равномерное распределение без кластеров (как на образце)
+    if (UNIFORM_NODES) {
+      const total = this.config.nodeCount
+      const pad = WALL_PADDING_PX
+
+      // Вычисляем идеальный шаг для равномерного покрытия
+      const usableW = this.width - pad * 2
+      const usableH = this.height - pad * 2
+      const area = usableW * usableH
+      const idealStep = Math.sqrt(area / total)
+
+      this.nodes = []
+
+      // Генерируем узлы случайно с минимальной дистанцией
+      let minDist = idealStep * 0.7
+      let attempts = 0
+      const maxAttempts = total * 50
+
+      while (this.nodes.length < total && attempts < maxAttempts) {
+        const isHub = Math.random() < this.config.hubRate
+        const sizePx = isHub
+          ? THREE.MathUtils.randFloat(
+              this.config.hubSize[0],
+              this.config.hubSize[1]
+            )
+          : THREE.MathUtils.randFloat(
+              this.config.nodeSize[0],
+              this.config.nodeSize[1]
+            )
+
+        const x = THREE.MathUtils.randFloat(pad, this.width - pad)
+        const y = -THREE.MathUtils.randFloat(pad, this.height - pad)
+
+        let valid = true
+        for (let k = 0; k < this.nodes.length; k++) {
+          const dx = this.nodes[k].x - x
+          const dy = this.nodes[k].y - y
+          if (Math.hypot(dx, dy) < minDist) {
+            valid = false
+            break
+          }
+        }
+
+        if (valid) {
+          this.nodes.push({
+            x,
+            y,
+            vx: 0,
+            vy: 0,
+            size: sizePx * this.dpr,
+            isHub,
+            cluster: 0,
+          })
+        }
+
+        attempts++
+
+        // Постепенно снижаем порог, если долго не получается
+        if (attempts % (total * 5) === 0) {
+          minDist *= 0.9
+        }
+      }
+
+      // Добиваем оставшиеся узлы без ограничений
+      while (this.nodes.length < total) {
+        const isHub = Math.random() < this.config.hubRate
+        const sizePx = isHub
+          ? THREE.MathUtils.randFloat(
+              this.config.hubSize[0],
+              this.config.hubSize[1]
+            )
+          : THREE.MathUtils.randFloat(
+              this.config.nodeSize[0],
+              this.config.nodeSize[1]
+            )
+
+        const x = THREE.MathUtils.randFloat(pad, this.width - pad)
+        const y = -THREE.MathUtils.randFloat(pad, this.height - pad)
+
+        this.nodes.push({
+          x,
+          y,
+          vx: 0,
+          vy: 0,
+          size: sizePx * this.dpr,
+          isHub,
+          cluster: 0,
+        })
+      }
+
+      // Связи: каждый узел к ближайшим соседям в радиусе
+      this.edges = []
+      const seen = new Set()
+      const linkRadius = idealStep * 1.6 // радиус связей
+
+      for (let i = 0; i < this.nodes.length; i++) {
+        const a = this.nodes[i]
+        const neighbors = []
+
+        for (let j = 0; j < this.nodes.length; j++) {
+          if (i === j) continue
+          const b = this.nodes[j]
+          const dx = b.x - a.x
+          const dy = b.y - a.y
+          const dist = Math.hypot(dx, dy)
+
+          if (dist <= linkRadius) {
+            neighbors.push({ j, dist })
+          }
+        }
+
+        neighbors.sort((u, v) => u.dist - v.dist)
+        const maxLinks = Math.max(
+          1,
+          Math.round(
+            THREE.MathUtils.randInt(
+              this.config.linkPerNode[0],
+              this.config.linkPerNode[1]
+            ) * this.config.graphDensity
+          )
+        )
+
+        for (let n = 0; n < Math.min(maxLinks, neighbors.length); n++) {
+          const j = neighbors[n].j
+          const aIdx = Math.min(i, j)
+          const bIdx = Math.max(i, j)
+          const key = `${aIdx}-${bIdx}`
+
+          if (!seen.has(key)) {
+            const dx = this.nodes[bIdx].x - this.nodes[aIdx].x
+            const dy = this.nodes[bIdx].y - this.nodes[aIdx].y
+            const rest = Math.hypot(dx, dy)
+            this.edges.push({ a: aIdx, b: bIdx, rest })
+            seen.add(key)
+          }
+        }
+      }
+      return
+    }
     // Create cluster centers
     const clusterCenters = []
     const margin = CLUSTER_CENTER_MARGIN_PX
@@ -334,11 +481,24 @@ class NetworkAnimation {
     const { springK, springRest, repulsion, damping, jitter, motionScale } =
       this.config
 
+    // Центр контейнера для притяжения
+    const centerX = this.width / 2
+    const centerY = -this.height / 2
+    const time = performance.now() * 0.001
+
     // Repulsion (approximate: cluster-local by neighborhood from edges)
     for (let i = 0; i < this.nodes.length; i++) {
       const a = this.nodes[i]
       let fx = (Math.random() - 0.5) * jitter
       let fy = (Math.random() - 0.5) * jitter
+
+      // Пульсирующее притяжение к центру
+      const centerPull =
+        Math.sin(time * CENTER_PULL_FREQUENCY) * CENTER_PULL_STRENGTH
+      const dcx = centerX - a.x
+      const dcy = centerY - a.y
+      fx += dcx * centerPull
+      fy += dcy * centerPull
 
       // Apply spring forces along edges
       // Also collect mild repulsion from neighbors in edges
