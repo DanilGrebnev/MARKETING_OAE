@@ -1,0 +1,66 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border-radius: 999px;
+  padding: 0.85rem 1.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: transform var(--transition-base),
+    box-shadow var(--transition-base), background var(--transition-base),
+    color var(--transition-base);
+}
+.btn--primary {
+  color: var(--bg-1);
+  background: linear-gradient(135deg, var(--cyan), var(--magenta));
+  box-shadow: 0 0 25px rgba(0, 230, 255, 0.35);
+  border: none;
+}
+.btn--primary:hover,
+.btn--primary:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(182, 76, 255, 0.45);
+}
+.btn--secondary {
+  color: var(--text);
+  background: transparent;
+  border: 1px solid rgba(0, 230, 255, 0.5);
+  backdrop-filter: blur(10px);
+}
+.btn--secondary:hover,
+.btn--secondary:focus-visible {
+  border-color: rgba(182, 76, 255, 0.8);
+  color: var(--cyan);
+  box-shadow: 0 0 25px rgba(0, 230, 255, 0.25);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+.btn[disabled] {
+  cursor: wait;
+  opacity: 0.65;
+}
+.btn__spinner {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 2px solid rgba(6, 5, 26, 0.35);
+  border-top-color: var(--bg-1);
+  display: none;
+}
+.btn--loading .btn__spinner {
+  display: inline-block;
+  animation: spinner 0.9s linear infinite;
+}
+.btn--loading .btn__label {
+  opacity: 0;
+}
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}

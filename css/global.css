@@ -1,0 +1,189 @@
+/* Variables */
+:root {
+  --bg-1: #06051a;
+  --bg-2: #0f1330;
+  --cyan: #00e6ff;
+  --magenta: #b64cff;
+  --text: #e6eef8;
+  --muted: #9aa3bf;
+  --card-bg: rgba(255, 255, 255, 0.035);
+  --card-border: rgba(0, 230, 255, 0.12);
+  --transition-base: 220ms ease;
+  --header-height: 65px;
+}
+
+/* Resets */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  list-style: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  color: var(--text);
+  background: radial-gradient(
+      circle at top right,
+      rgba(182, 76, 255, 0.2),
+      transparent 45%
+    ),
+    radial-gradient(circle at 20% 35%, rgba(0, 230, 255, 0.2), transparent 45%),
+    linear-gradient(135deg, var(--bg-1), var(--bg-2));
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320' viewBox='0 0 320 320'%3E%3Cg opacity='0.12'%3E%3Cpath d='M0 40h320M0 160h320M0 280h320M40 0v320M160 0v320M280 0v320' stroke='%2300e6ff' stroke-width='0.7'/%3E%3C/g%3E%3C/svg%3E");
+  mix-blend-mode: screen;
+  opacity: 0.6;
+  z-index: -2;
+}
+
+/* Containers */
+main {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 1.5rem 6rem;
+  overflow: hidden;
+}
+
+/* Headings utilities */
+.heading-2 {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  letter-spacing: -0.01em;
+}
+.heading-3 {
+  font-size: 1.2rem;
+}
+.heading-mb {
+  margin-bottom: 0.5rem;
+}
+
+/* Section common heading text */
+.section-heading p {
+  color: var(--muted);
+  margin-top: 0;
+}
+
+/* Shared cards */
+.service-card,
+.method-step,
+.case-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  padding: 1.9rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition-base),
+    box-shadow var(--transition-base), border-color var(--transition-base);
+  backdrop-filter: blur(14px);
+}
+.service-card::before,
+.method-step::before,
+.case-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 230, 255, 0.12),
+    rgba(182, 76, 255, 0.12)
+  );
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  z-index: -1;
+}
+.service-card:hover,
+.service-card:focus-within,
+.method-step:hover,
+.method-step:focus-within,
+.case-card:hover,
+.case-card:focus-within {
+  transform: translateY(-6px);
+  border-color: rgba(182, 76, 255, 0.35);
+  box-shadow: 0 12px 35px rgba(0, 230, 255, 0.18);
+}
+.service-card:hover::before,
+.service-card:focus-within::before,
+.method-step:hover::before,
+.method-step:focus-within::before,
+.case-card:hover::before,
+.case-card:focus-within::before {
+  opacity: 1;
+}
+
+.service-card__icon,
+.method-step__icon {
+  font-size: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+.service-card p,
+.method-step p,
+.case-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* Anchor offset */
+.anchor-offset {
+  scroll-margin-top: 72px;
+}
+
+/* Footer */
+.site-footer {
+  border-top: 1px solid rgba(0, 230, 255, 0.15);
+  padding: 2.5rem 1.5rem 3rem;
+  background: rgba(6, 5, 26, 0.85);
+}
+.site-footer__inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  justify-content: space-between;
+}
+.site-footer__inner nav {
+  display: flex;
+  gap: 1rem;
+}
+.site-footer__inner a {
+  color: var(--muted);
+  text-decoration: none;
+}
+.site-footer__inner a:hover,
+.site-footer__inner a:focus-visible {
+  color: var(--cyan);
+}
+
+/* Accessibility reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

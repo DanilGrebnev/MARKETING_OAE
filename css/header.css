@@ -1,0 +1,142 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(14px);
+  background: rgba(6, 5, 26, 0.85);
+  border-bottom: 1px solid rgba(0, 230, 255, 0.08);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.12em;
+  color: var(--cyan);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid rgba(0, 230, 255, 0.3);
+  border-radius: 10px;
+  padding: 0.6rem;
+  cursor: pointer;
+  transition: background var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.nav-toggle:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+.nav-toggle__bar {
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  display: block;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+}
+.main-nav__list {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.main-nav__list a {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition-base);
+}
+.main-nav__list a:hover,
+.main-nav__list a:focus-visible {
+  color: var(--cyan);
+}
+
+.header-mail {
+  color: var(--cyan);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity var(--transition-base);
+}
+.header-mail:hover,
+.header-mail:focus-visible {
+  opacity: 0.75;
+}
+
+.main-nav__email {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .site-header__inner {
+    padding: 0.85rem 1.25rem;
+  }
+}
+
+@media (max-width: 783px) {
+  .nav-toggle {
+    display: flex;
+  }
+  .header-mail {
+    display: none;
+  }
+  .main-nav__email {
+    display: block;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 230, 255, 0.15);
+  }
+  .main-nav__email a {
+    color: var(--cyan);
+    font-weight: 500;
+  }
+  .main-nav {
+    position: absolute;
+    inset: 100% 1.5rem auto;
+    background: rgba(9, 12, 32, 0.95);
+    border: 1px solid rgba(0, 230, 255, 0.15);
+    border-radius: 18px;
+    padding: 1rem 1.25rem;
+    transform-origin: top right;
+    transform: scaleY(0);
+    opacity: 0;
+    transition: transform var(--transition-base), opacity var(--transition-base);
+    pointer-events: none;
+    z-index: 20;
+  }
+  .main-nav__list {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .site-header__inner {
+    position: relative;
+  }
+  .main-nav.is-open {
+    transform: scaleY(1);
+    opacity: 1;
+    pointer-events: auto;
+    margin-top: 0.75rem;
+  }
+}

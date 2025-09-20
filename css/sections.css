@@ -1,0 +1,44 @@
+.services,
+.method,
+.cases,
+.contact,
+.about,
+.what {
+  margin-top: 4rem;
+}
+
+.services__grid,
+.method__grid,
+.cases__grid {
+  display: grid;
+  gap: 1.75rem;
+  margin-top: 2.5rem;
+}
+
+.services__grid {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+.method__grid {
+  grid-template-columns: 1fr;
+}
+.cases__grid {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .method__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cases__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .method__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .cases__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

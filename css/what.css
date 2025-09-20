@@ -1,0 +1,21 @@
+.what .section-heading h2 {
+  text-align: center;
+}
+.what .section-heading ul {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.what .section-heading li {
+  position: relative;
+  padding-left: 1.5rem;
+  color: var(--muted);
+}
+.what .section-heading li::before {
+  content: "✔";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--cyan);
+  font-weight: 700;
+}
