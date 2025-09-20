@@ -34,8 +34,8 @@ const EDGE_OPACITY = 0.22
 const NODE_SIZE_MIN_PX = 1.2
 const NODE_SIZE_MAX_PX = 2.0
 // HUB_SIZE_MIN/MAX_PX — размер хабов (в пикселях), масштабируется под DPR
-const HUB_SIZE_MIN_PX = 3
-const HUB_SIZE_MAX_PX = 6
+const HUB_SIZE_MIN_PX = 2
+const HUB_SIZE_MAX_PX = 5
 // MOTION_SCALE — масштаб амплитуды движения (увеличивает расстояние колебаний)
 const MOTION_SCALE = 1.9
 // WALL_PADDING_PX — отступ от краёв контейнера, ближе которого узлы не подходят
