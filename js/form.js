@@ -25,7 +25,6 @@ function getFormData() {
     email: formData.get("email"),
     company: formData.get("company"),
     message: formData.get("message"),
-    consent: formData.get("consent") === "on",
     source: SOURCE,
   }
 }
@@ -56,13 +55,6 @@ function setLoading(loading) {
  */
 async function submitForm(event) {
   event.preventDefault()
-
-  // Check consent checkbox
-  const consentField = form.querySelector("#consent")
-  if (!consentField.checked) {
-    showStatus("error", "Please agree to the privacy policy.")
-    return
-  }
 
   const formData = new FormData(form)
   const endpoint = SEND_EMAIL_URL
