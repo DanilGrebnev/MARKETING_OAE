@@ -237,11 +237,11 @@
         </div>
       </section>
 
-      <!-- Call to Action -->
+      <!-- Contact us -->
       <section class="contact anchor-offset" id="contact">
         <div class="contact__content">
           <div class="section-heading">
-            <h2 class="heading-2 heading-mb">Call to Action</h2>
+            <h2 class="heading-2 heading-mb">Contact us</h2>
             <p>
               Want to know how research can help your business? Leave a request
               and we will get in touch with you.
@@ -256,10 +256,10 @@
             netlify-honeypot="_honey"
             data-netlify-honeypot="_honey"
             name="insight-contact"
-            novalidate
           >
             <input type="hidden" name="form-name" value="insight-contact" />
             <div class="contact-form__group" aria-hidden="true">
+              <!-- Защита от спам ботов -->
               <label for="_honey">Please leave this field blank</label>
               <input
                 id="_honey"
@@ -277,6 +277,10 @@
                 type="text"
                 placeholder="Your name"
                 required
+                minlength="2"
+                maxlength="50"
+                pattern="[A-Za-zА-Яа-яЁё\s]{2,50}"
+                title="Please enter a valid name (2-50 characters, letters only)"
                 aria-required="true"
                 autocomplete="name"
               />
@@ -289,6 +293,8 @@
                 type="email"
                 placeholder="you@company.com"
                 required
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                title="Please enter a valid email address"
                 aria-required="true"
                 autocomplete="email"
               />
@@ -301,6 +307,9 @@
                 type="text"
                 placeholder="Company"
                 required
+                minlength="2"
+                maxlength="100"
+                title="Please enter your company name (2-100 characters)"
                 aria-required="true"
                 autocomplete="organization"
               />
@@ -312,6 +321,8 @@
                 name="message"
                 rows="4"
                 placeholder="Share a short brief or task"
+                maxlength="1000"
+                title="Maximum 1000 characters"
               ></textarea>
             </div>
             <div class="contact-form__consent">
@@ -361,9 +372,8 @@
         </nav>
       </div>
     </footer>
-
-    <script defer src="form.js" type="module"></script>
+    <script defer src="js/form.js" type="module"></script>
+    <script defer src="navigation.js" type="module"></script>
     <script src="js/network-animation.js" type="module"></script>
-    <script src="navigation.js" type="module"></script>
   </body>
 </html>
