@@ -3,8 +3,7 @@
  */
 
 // Configuration
-const SEND_EMAIL_URL = "https://your-api-endpoint.com/send-email"
-const SOURCE = "Neon Insight Lab landing"
+import { SEND_EMAIL_URL, SOURCE } from "./env.js"
 
 // Get form elements
 const form = document.querySelector("#contactForm")
