@@ -11,6 +11,8 @@ if os.path.exists("css"):
     app.mount("/css", StaticFiles(directory="css"), name="css")
 if os.path.exists("js"):
     app.mount("/js", StaticFiles(directory="js"), name="js")
+if os.path.exists("favicon"):
+    app.mount("/favicon", StaticFiles(directory="favicon"), name="favicon")
 
 @app.get("/")
 async def read_index():
