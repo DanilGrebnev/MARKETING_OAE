@@ -1,6 +1,6 @@
 // Simple config (importable)
 export const BRAND_NAME = "NeonLab"
-export const SUPPORT_EMAIL = "hello@neonlab.team"
+export const SUPPORT_EMAIL = "hello@allflow.tech"
 export const SEND_EMAIL_URL = "https://your-api-endpoint.com/send-email"
 export const SOURCE = "Neon Insight Lab landing"
 
