@@ -1,5 +1,5 @@
 // Simple config (importable)
-export const BRAND_NAME = "allflow"
+export const BRAND_NAME = "Allflow"
 export const SUPPORT_EMAIL = "hello@allflow.tech"
 export const SEND_EMAIL_URL = "https://your-api-endpoint.com/send-email"
 export const SOURCE = "Neon Insight Lab landing"
@@ -16,6 +16,9 @@ function injectBrandAndEmail() {
       )
     }
   }
+
+  // Update page title to match brand name
+  document.title = BRAND_NAME
 
   const selectors = [
     ".header-mail",
